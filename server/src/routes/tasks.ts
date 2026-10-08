@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { db, nowIso } from '../db.js';
 import { GeminiError } from '../ai/gemini.js';
 import { verifyProof } from '../ai/verify.js';
-import { absoluteStoragePath, removeStoredFile } from '../services/documents.js';
+import { removeStoredFile } from '../services/documents.js';
+import { background, ensureLocalFile } from '../persist.js';
 import { completeTask, gameState, profileRow } from '../services/game.js';
 import { processDocument } from '../services/processDocument.js';
 import { TASK_ORDER, TASK_SELECT, taskById, taskOut, type TaskRow } from '../services/serialize.js';
@@ -146,7 +147,7 @@ tasksRouter.post('/tasks/:id/complete', upload.single('proof'), async (req, res)
     return;
   }
 
-  const proofDoc = saveUploadedDocument(userId, req.file, true);
+  const proofDoc = await saveUploadedDocument(userId, req.file, true);
   // A rejected or unverifiable proof is not kept, so the same file can be tried again; only accepted proofs block reuse.
   const discardProof = () => {
     db.prepare('DELETE FROM documents WHERE id = ?').run(proofDoc.id);
@@ -164,9 +165,11 @@ tasksRouter.post('/tasks/:id/complete', upload.single('proof'), async (req, res)
 
   let verdict;
   try {
+    const proofFile = await ensureLocalFile(proofDoc.storage_path);
+    if (!proofFile) throw new Error('Datoteka dokaza ne postoji.');
     verdict = await verifyProof(
       task,
-      absoluteStoragePath(proofDoc.storage_path),
+      proofFile,
       proofDoc.mime_type ?? 'application/pdf',
       profileRow(userId).language,
     );
@@ -192,7 +195,7 @@ tasksRouter.post('/tasks/:id/complete', upload.single('proof'), async (req, res)
   // A proof that is itself a new document (e.g. a new medical report) goes to Documents and is read (Tok C, step 5).
   if (verdict.is_new_document) {
     db.prepare("UPDATE documents SET is_proof = 0, status = 'processing' WHERE id = ?").run(proofDoc.id);
-    void processDocument(proofDoc.id);
+    background(processDocument(proofDoc.id));
   }
 
   res.json({

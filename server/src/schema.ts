@@ -1,3 +1,5 @@
+/** Applied on every start (all statements are IF NOT EXISTS). Kept in TS so the serverless bundle needs no extra files. */
+export const SCHEMA_SQL = `
 -- relAI schema, SRS §8.1 adapted to SQLite.
 -- Timestamps are ISO-8601 UTC strings. Calendar dates are 'YYYY-MM-DD' in Europe/Zagreb;
 -- tasks.start_at is Zagreb wall time, 'YYYY-MM-DD' (all day) or 'YYYY-MM-DDTHH:MM'.
@@ -167,3 +169,4 @@ CREATE INDEX IF NOT EXISTS idx_tasks_document ON tasks(document_id);
 CREATE INDEX IF NOT EXISTS idx_hp_ledger_user ON hp_ledger(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_chat_user ON chat_messages(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_goals_user ON goals(user_id);
+`;

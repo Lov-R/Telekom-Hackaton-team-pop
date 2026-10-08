@@ -1,0 +1,27 @@
+# Frontend: static Vite build. Backend: netlify/functions/api.mts serves /api/*.
+# Set GEMINI_API_KEY (and optionally ADMIN_IMPORT_TOKEN for the one-time data upload) in the Netlify UI.
+[build]
+  command = "npm run build -w client"
+  publish = "client/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # The model name is public (it is the default in server/src/env.ts); only GEMINI_API_KEY is secret.
+  SECRETS_SCAN_OMIT_KEYS = "GEMINI_MODEL"
+
+[functions]
+  node_bundler = "esbuild"
+  # Native module: shipped as-is (its package includes a prebuilt linux-x64 binary).
+  external_node_modules = ["better-sqlite3"]
+
+# The service worker must never be cached (SRS §7.4).
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# SPA: client-side routes fall back to index.html (/api/* is handled by the function first).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

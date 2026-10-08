@@ -4,10 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
 import { db, newId, nowIso, tx } from '../db.js';
-import { UPLOAD_DIR } from '../env.js';
+import { MAX_UPLOAD_MB, UPLOAD_DIR } from '../env.js';
+import { background, ensureLocalFile, saveFile } from '../persist.js';
 import { CATEGORIES, CATEGORY_KEYS, cleanSubcategory } from '../ai/schemas.js';
 import {
-  absoluteStoragePath,
   assertNotDuplicate,
   documentDetail,
   getDocRow,
@@ -32,13 +32,13 @@ export const EXT_BY_MIME: Record<string, string[]> = {
 const TMP_DIR = path.join(UPLOAD_DIR, 'tmp');
 fs.mkdirSync(TMP_DIR, { recursive: true });
 
-/** SRS §5.2: JPG, PNG or PDF up to 10 MB (images arrive already downscaled by the client). */
+/** SRS §5.2: JPG, PNG or PDF up to 10 MB, 4 MB on Netlify (images arrive already downscaled by the client). */
 export const upload = multer({
   storage: multer.diskStorage({
     destination: TMP_DIR,
     filename: (_req, _file, cb) => cb(null, crypto.randomUUID()),
   }),
-  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  limits: { fileSize: MAX_UPLOAD_MB * 1024 * 1024, files: 1 },
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     if (!EXT_BY_MIME[file.mimetype]?.includes(ext)) {
@@ -53,7 +53,11 @@ export const upload = multer({
  * Hash-checks and stores an uploaded file as a document row in 'processing' state. Returns the new row.
  * The temp file is always consumed (moved or deleted).
  */
-export function saveUploadedDocument(userId: string, file: Express.Multer.File, isProof: boolean): DocRow {
+export async function saveUploadedDocument(
+  userId: string,
+  file: Express.Multer.File,
+  isProof: boolean,
+): Promise<DocRow> {
   try {
     const hash = sha256File(file.path);
     assertNotDuplicate(userId, hash);
@@ -61,6 +65,7 @@ export function saveUploadedDocument(userId: string, file: Express.Multer.File, 
     const now = nowIso();
     const original = Buffer.from(file.originalname, 'latin1').toString('utf8');
     const storagePath = storeUpload(userId, id, file.path, path.extname(file.originalname).toLowerCase());
+    await saveFile(storagePath);
     db.prepare(
       `INSERT INTO documents (id, user_id, storage_path, file_hash, mime_type, title, is_proof, status,
          original_name, size_bytes, created_at, updated_at)
@@ -106,10 +111,10 @@ documentsRouter.get('/documents', (req: Request, res) => {
   res.json(rows.map(listItem));
 });
 
-documentsRouter.post('/documents', upload.single('file'), (req, res) => {
+documentsRouter.post('/documents', upload.single('file'), async (req, res) => {
   if (!req.file) throw new HttpError(400, 'no_file', 'Datoteka nije priložena.');
-  const row = saveUploadedDocument(req.userId, req.file, false);
-  void processDocument(row.id);
+  const row = await saveUploadedDocument(req.userId, req.file, false);
+  background(processDocument(row.id));
   res.status(202).json(listItem(row));
 });
 
@@ -140,10 +145,10 @@ documentsRouter.get('/documents/:id', (req, res) => {
   res.json(documentDetail(req.userId, req.params.id));
 });
 
-documentsRouter.get('/documents/:id/file', (req, res) => {
+documentsRouter.get('/documents/:id/file', async (req, res) => {
   const r = getDocRow(req.userId, req.params.id);
-  const abs = absoluteStoragePath(r.storage_path);
-  if (!fs.existsSync(abs)) throw notFound('Datoteka');
+  const abs = await ensureLocalFile(r.storage_path);
+  if (!abs) throw notFound('Datoteka');
   res.setHeader('Content-Type', r.mime_type ?? 'application/octet-stream');
   res.setHeader('Content-Disposition', 'inline');
   res.setHeader('Cache-Control', 'private, no-store');
@@ -195,7 +200,7 @@ documentsRouter.post('/documents/:id/reprocess', (req, res) => {
       cur.id,
     );
   });
-  void processDocument(cur.id);
+  background(processDocument(cur.id));
   res.status(202).json(listItem(getDocRow(req.userId, cur.id)));
 });
 

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { db } from '../db.js';
 import { UPLOAD_DIR } from '../env.js';
+import { background, deleteFile } from '../persist.js';
 import { HttpError, notFound } from '../util/http.js';
 import { TASK_ORDER, TASK_SELECT, taskOut, type TaskRow } from './serialize.js';
 
@@ -134,6 +135,7 @@ export function assertNotDuplicate(userId: string, hash: string): void {
 }
 
 export function removeStoredFile(storagePath: string): void {
+  background(deleteFile(storagePath));
   try {
     fs.rmSync(absoluteStoragePath(storagePath), { force: true });
   } catch {

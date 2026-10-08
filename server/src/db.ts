@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { DATA_DIR, UPLOAD_DIR } from './env.js';
+import { DATA_DIR, SERVERLESS, UPLOAD_DIR } from './env.js';
+import { SCHEMA_SQL } from './schema.js';
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -30,15 +30,40 @@ async function moveLegacyDatabase(): Promise<void> {
   }
   for (const suffix of ['', '-wal', '-shm']) fs.rmSync(`${DB_PATH}${suffix}`, { force: true });
 }
-await moveLegacyDatabase();
 
-export const DB_DRIVER = 'better-sqlite3';
-export const db = new Database(DB_PATH);
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+function prepare(conn: Database.Database): Database.Database {
+  conn.pragma('foreign_keys = ON');
+  conn.exec(SCHEMA_SQL);
+  return conn;
+}
 
-const schemaPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'schema.sql');
-db.exec(fs.readFileSync(schemaPath, 'utf8'));
+export const DB_DRIVER = SERVERLESS ? 'better-sqlite3 (Netlify Blobs)' : 'better-sqlite3';
+/**
+ * Live binding: on Netlify, loadSnapshot() swaps in a fresh in-memory copy, so always use `db` at call time
+ * and never keep a prepared statement or a reference to it across requests.
+ */
+export let db: Database.Database;
+if (!SERVERLESS) {
+  await moveLegacyDatabase();
+  db = new Database(DB_PATH);
+  db.pragma('journal_mode = WAL');
+  prepare(db);
+}
+
+/** Serverless: replace the database with a serialized snapshot, or an empty one when there is none yet. */
+export function loadSnapshot(buf: Buffer | null): void {
+  if (buf && buf[18] === 2) {
+    // A WAL-mode file header can't be opened in memory; mark it as a rollback-journal database.
+    buf[18] = 1;
+    buf[19] = 1;
+  }
+  const next = prepare(buf ? new Database(buf) : new Database(':memory:'));
+  db?.close();
+  db = next;
+}
+
+export const isDbLoaded = (): boolean => db !== undefined;
+export const snapshot = (): Buffer => db.serialize();
 
 /** Run fn inside BEGIN/COMMIT, rolling back on error. Nested calls join the outer transaction. */
 export function tx<T>(fn: () => T): T {

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useUploadDocument } from '@/hooks/queries';
 import { downscaleImage } from '@/lib/image';
 
-const MAX_PDF_BYTES = 10 * 1024 * 1024;
+/** Netlify accepts request bodies up to ~4.5 MB of binary data. */
+const MAX_PDF_BYTES = 4 * 1024 * 1024;
 
 /** SRS §5.2: "Slikaj dokument" (camera) and "Uploadaj datoteku" (image or PDF). */
 export function UploadButtons() {
@@ -29,7 +30,7 @@ export function UploadButtons() {
       toast.error('Podržane su slike (JPG, PNG) i PDF.');
       return;
     } else if (file.size > MAX_PDF_BYTES) {
-      toast.error('PDF je prevelik (najviše 10 MB).');
+      toast.error('PDF je prevelik (najviše 4 MB).');
       return;
     }
     upload.mutate(toSend, { onSuccess: () => toast('Čitam dokument...', { description: 'Za par sekundi bit će u svojoj mapi.' }) });

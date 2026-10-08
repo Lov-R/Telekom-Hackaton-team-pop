@@ -25,6 +25,10 @@ if (!parsed.success) {
   process.exit(1);
 }
 export const env = parsed.data;
-/** RELAI_DATA_DIR lets tests run against a scratch copy. */
+/** Set by netlify/functions/*: the DB lives in Netlify Blobs and files are cached under /tmp (see persist.ts). */
+export const SERVERLESS = process.env.RELAI_RUNTIME === 'netlify';
+/** Netlify's buffered request limit is 6 MB including Base64 overhead, so uploads there stop at 4 MB. */
+export const MAX_UPLOAD_MB = SERVERLESS ? 4 : 10;
+/** RELAI_DATA_DIR lets tests run against a scratch copy (and points at /tmp on Netlify). */
 export const DATA_DIR = process.env.RELAI_DATA_DIR ? path.resolve(process.env.RELAI_DATA_DIR) : path.join(SERVER_ROOT, 'data');
 export const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');

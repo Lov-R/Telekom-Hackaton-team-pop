@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const ACCEPT = 'application/pdf,image/jpeg,image/png,image/webp';
-const MAX_BYTES = 10 * 1024 * 1024;
+/** Netlify accepts request bodies up to ~4.5 MB of binary data. */
+const MAX_BYTES = 4 * 1024 * 1024;
 
 interface PdfDropzoneProps {
   onFile: (file: File) => void;
@@ -23,7 +24,7 @@ export function PdfDropzone({ onFile, busy }: PdfDropzoneProps) {
       return;
     }
     if (file.size > MAX_BYTES) {
-      toast.error('Datoteka je prevelika (najviše 10 MB).');
+      toast.error('Datoteka je prevelika (najviše 4 MB).');
       return;
     }
     onFile(file);
@@ -53,7 +54,7 @@ export function PdfDropzone({ onFile, busy }: PdfDropzoneProps) {
       </div>
       <div className="space-y-1">
         <p className="text-lg font-semibold">{busy ? 'Učitavanje...' : 'Povuci PDF ovdje'}</p>
-        <p className="text-sm text-muted-foreground">ili odaberi datoteku s uređaja (PDF, JPEG, PNG, WebP do 10 MB)</p>
+        <p className="text-sm text-muted-foreground">ili odaberi datoteku s uređaja (PDF, JPEG, PNG, WebP do 4 MB)</p>
       </div>
       <Button size="lg" disabled={busy} onClick={() => input.current?.click()}>
         Odaberi datoteku

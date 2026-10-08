@@ -5,7 +5,8 @@ import { cleanSubcategory } from '../ai/schemas.js';
 import { GeminiError } from '../ai/gemini.js';
 import { todayZagreb } from '../util/dates.js';
 import { followUpDates } from './dateRules.js';
-import { absoluteStoragePath, type Extracted } from './documents.js';
+import { freshWrite, ensureLocalFile } from '../persist.js';
+import type { Extracted } from './documents.js';
 import { profileRow, rewardDocument } from './game.js';
 
 /** Subcategories already used in the user's library, grouped by category. */
@@ -45,7 +46,9 @@ export async function processDocument(id: string, opts: ExtractOptions = {}): Pr
   if (!doc) return { ok: false, error: 'Dokument ne postoji.' };
   try {
     const lang = profileRow(doc.user_id).language;
-    const x = await extractDocument(absoluteStoragePath(doc.storage_path), doc.mime_type ?? 'application/pdf', {
+    const file = await ensureLocalFile(doc.storage_path);
+    if (!file) throw new Error('Datoteka dokumenta ne postoji.');
+    const x = await extractDocument(file, doc.mime_type ?? 'application/pdf', {
       hints: existingSubcategories(doc.user_id),
       lang,
       ...opts,
@@ -63,7 +66,8 @@ export async function processDocument(id: string, opts: ExtractOptions = {}): Pr
     const today = todayZagreb();
     const dates = followUpDates(x.document_date, x.follow_up, today);
     let taskId: string | null = null;
-    tx(() => {
+    // On Netlify other requests may have changed the database during the AI call; write on the newest copy.
+    await freshWrite(() => tx(() => {
       // Document may have been deleted while Gemini was working.
       if (!db.prepare('SELECT 1 FROM documents WHERE id = ?').get(id)) return;
       db.prepare(
@@ -103,20 +107,25 @@ export async function processDocument(id: string, opts: ExtractOptions = {}): Pr
         );
       }
       rewardDocument(doc.user_id, id);
-    });
+    }));
     return { ok: true, category: x.category, subcategory: cleanSubcategory(x.subcategory), taskId };
   } catch (e) {
     const message = e instanceof GeminiError ? e.message : 'Obrada dokumenta nije uspjela. Pokušaj ponovno.';
     if (!(e instanceof GeminiError)) console.error('processDocument greška:', e instanceof Error ? e.message : e);
-    db.prepare("UPDATE documents SET status = 'error', error = ?, updated_at = ? WHERE id = ?").run(message, nowIso(), id);
+    await freshWrite(() =>
+      db.prepare("UPDATE documents SET status = 'error', error = ?, updated_at = ? WHERE id = ?").run(message, nowIso(), id),
+    );
     return { ok: false, error: message };
   }
 }
 
-/** Documents left in 'processing' by a previous run can never finish. */
-export function failStuckDocuments(): void {
-  db.prepare("UPDATE documents SET status = 'error', error = ?, updated_at = ? WHERE status = 'processing'").run(
-    'Obrada je prekinuta. Pokušaj ponovno.',
-    nowIso(),
-  );
+/**
+ * Documents left in 'processing' by a previous run can never finish. Locally that is every one at startup;
+ * on Netlify, one older than minAgeMs (its function hit the time limit).
+ */
+export function failStuckDocuments(minAgeMs = 0): void {
+  const cutoff = new Date(Date.now() - minAgeMs).toISOString();
+  db.prepare(
+    "UPDATE documents SET status = 'error', error = ?, updated_at = ? WHERE status = 'processing' AND updated_at <= ?",
+  ).run('Obrada je prekinuta. Pokušaj ponovno.', nowIso(), cutoff);
 }
