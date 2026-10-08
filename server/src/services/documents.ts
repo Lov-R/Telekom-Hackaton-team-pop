@@ -81,6 +81,7 @@ export const listItem = (r: DocRow) => {
     documentDate: r.document_date,
     expiryDate: r.expiry_date,
     status: apiStatus(r.status),
+    mimeType: r.mime_type,
     createdAt: r.created_at,
     sizeBytes: r.size_bytes,
   };
@@ -101,7 +102,6 @@ export function documentDetail(userId: string, id: string) {
     fullText: x.fullText ?? null,
     error: r.error,
     originalName: r.original_name,
-    mimeType: r.mime_type,
     tasks: tasks.map(taskOut),
   };
 }

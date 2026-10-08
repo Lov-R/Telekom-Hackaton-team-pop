@@ -1,0 +1,126 @@
+/* Small warm accents turn blue hour into the promise of a new day. */
+#future-self{--relai-warm:#f3b37d;--relai-warm-light:#ffd9b5}
+body:has(.rg-intro[open],.rg-assistant[open],.rg-menu[open]){overflow:hidden}
+#future-self .rg-world-heading>div:first-child>span{color:#f6c59b;font-size:10px;letter-spacing:2px;text-transform:none}
+#future-self .rg-world-vignette{background:linear-gradient(#0b1420 0%,#0b142036 9%,transparent 20%,transparent 82%,#0b1420 100%)}
+#future-self .rg-terrain{filter:saturate(.9) brightness(1.03)}
+#future-self .rg-xp svg{color:#f6bf8e;fill:#f3b37d20}
+#future-self .rg-player{width:110px;height:174px}
+#future-self .rg-player .rg-human{filter:drop-shadow(0 0 2px #e6f3ffb3) drop-shadow(0 0 13px #b4d7fd88)}
+#future-self .rg-stop,#future-self .rg-stop.is-future{width:29px;height:23px;background:linear-gradient(#687b8db3,#273d53e0);border:1px solid #d3e3f0b3;box-shadow:0 2px 0 #172739,0 3px 9px #06152166;opacity:.95;font-size:10px;color:#f2f7ff}
+#future-self .rg-stop>span{opacity:1}#future-self .rg-stop.is-done{width:25px;height:21px;background:#c7dcebea;color:#19394f;box-shadow:0 2px 0 #45647b,0 0 10px #cae7fb5c}
+#future-self .rg-stop.is-current{width:39px;height:24px;background:#c9e0f24d;border-color:#e0f2ff;box-shadow:0 0 0 5px #bad7f42b,0 0 22px #b4ddff80}
+#future-self .rg-stop.is-current>span{opacity:0}
+#future-self .rg-world.is-starlight .rg-terrain{filter:brightness(1.23) saturate(1.2)}
+#future-self .rg-world.is-starlight .rg-motes i{box-shadow:0 0 5px 2px #edf7ff,0 0 22px #a4d2ff}
+#future-self .rg-trail.is-golden polyline{stroke:#ffddb0;stroke-width:.55;filter:drop-shadow(0 0 3px #e6b16f)}
+#future-self .rg-player-aura.is-warm{border-color:#ffdcad;box-shadow:0 0 22px 6px #f0b56c88}
+#future-self .rg-human-halo{position:absolute;top:0;left:32%;width:36%;height:8%;border:2px solid #eef4ff;border-radius:50%;transform:rotate(-10deg);box-shadow:0 0 10px #b7d9ff,0 0 22px #9bc2ef77}
+#future-self .rg-head-crop .rg-human-halo{display:none}
+#future-self .rg-map-tools{display:flex;flex-direction:column;gap:9px}
+#future-self .rg-player-tag{color:#ffdab8;border-color:#dbaa7566;background:#332c25ce}
+#future-self .rg-player-tag:after{border-top-color:#dbaa75}
+#future-self .rg-motes i:nth-child(3n){background:#ffe6bc;box-shadow:0 0 11px 2px #f6b679}
+#future-self .rg-next-task>button{background:linear-gradient(140deg,#ffdab4,#e9aa73);border-color:#f9d1aa;color:#432f21;box-shadow:0 0 20px #ecae7426}
+#future-self .rg-next-task>button:hover{background:#ffe0bf}
+#future-self .rg-next-task p span{color:#f4c496}
+#future-self .rg-avatar-page{background:radial-gradient(ellipse at 83% 18%,#8e604529,transparent 42%),radial-gradient(ellipse at 45% 28%,#315675 0,transparent 49%),#111c2c}
+#future-self .rg-avatar-orbit{box-shadow:0 0 0 8px #8cbdec0b,0 0 35px #b5daf540,9px 0 26px #e5a57624}
+#future-self .rg-save-avatar,#future-self .fs-primary{background:linear-gradient(120deg,#ffdab6,#edb483);border-color:#fbd9b5;color:#392d24;box-shadow:0 3px 18px #d49b6417}
+#future-self .rg-save-avatar:hover,#future-self .fs-primary:hover{background:#ffdfbe}
+
+/* The avatar portrait is the chat button; the full-body sprite stays unchanged. */
+#future-self .rg-head-crop{position:relative;display:block;width:54px;height:54px;flex-shrink:0;border-radius:50%;overflow:hidden;background:radial-gradient(ellipse at 50% 90%,#7b9bc1,#d2e2ef);isolation:isolate;border:1px solid #e7edf6a6}
+#future-self .rg-head-crop>.rg-human{position:absolute;width:300%;height:480%;left:-100%;top:-30%;transform:none;filter:none;animation:none}
+#future-self .rg-head-crop.is-male>.rg-human{height:450%;top:-17%}
+#future-self .rg-head-crop .rg-human-render{animation:none;filter:none;opacity:1}
+#future-self .rg-chat-launch{position:absolute;right:0;top:42%;width:65px;height:65px;padding:4px;border-radius:50%;border:1px solid #f1c69a;background:linear-gradient(150deg,#fac68faa,#73574366);box-shadow:0 0 0 5px #e5b1850c,0 4px 22px #daa17530;z-index:8;display:grid;place-items:center;transition:transform .2s}
+#future-self .rg-chat-launch:hover{transform:translateY(-3px);box-shadow:0 0 0 6px #e5b18512,0 4px 27px #daa17555}
+#future-self .rg-chat-spark{position:absolute;bottom:-2px;right:-2px;line-height:13px;width:25px;height:18px;border-radius:9px 9px 2px 9px;background:#ffd6a8;color:#45301e;font-size:19px;letter-spacing:1px;font-weight:800;border:1px solid #ffe9ce}
+#future-self .rg-chat-label{position:absolute;top:calc(100% + 10px);width:88px;font-size:10px;color:#f5cea9;font-weight:500}
+
+#future-self .rg-assistant{position:fixed;inset:auto 0 0;margin:0 auto;width:min(440px,100vw);height:min(800px,96dvh);max-width:none;max-height:100dvh;border:1px solid #50687f;border-bottom:0;border-radius:25px 25px 0 0;padding:0;background:radial-gradient(ellipse at 95% 0,#71564226,transparent 50%),#142337;color:#eaf2fc;box-shadow:0 -20px 70px #040c1980;overflow:hidden}
+#future-self .rg-assistant[open]{display:flex;flex-direction:column}
+#future-self .rg-assistant::backdrop{background:#080f1cca;backdrop-filter:blur(12px)}
+#future-self .rg-chat-header{display:flex;gap:13px;align-items:center;padding:23px 21px 18px;border-bottom:1px solid #a0bada21}
+#future-self .rg-chat-header>div{flex:1;min-width:0}#future-self .rg-chat-header h2{font-size:15px;line-height:1.35;letter-spacing:-.3px}
+#future-self .rg-chat-header>div>span{font-size:9px;display:block;color:#b3c4d8;margin-top:7px}
+#future-self .rg-chat-header>button{background:none;padding:8px;color:#b6c9dd;display:grid;place-items:center;align-self:flex-start}
+#future-self .rg-chat-header>button svg{width:18px}
+#future-self .rg-chat-demo{font-size:8px;letter-spacing:.3px;color:#bac6d6;text-align:center;padding:11px 12px;background:#0d1a2a50}
+#future-self .rg-chat-messages{flex:1;min-height:0;overflow-y:auto;padding:24px 20px 15px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
+#future-self .rg-message{max-width:90%;align-self:flex-start;background:#23374e;border:1px solid #738da12b;border-radius:17px 17px 17px 3px;padding:13px 15px}
+#future-self .rg-message>span{font-size:8px;letter-spacing:1px;color:#f4c597;display:block;margin-bottom:7px}
+#future-self .rg-message p{font-size:12px;line-height:1.75;color:#dae7f3;overflow-wrap:anywhere;white-space:pre-wrap}
+#future-self .rg-message.is-user{align-self:flex-end;background:#694d383d;border-color:#c5956645;border-radius:17px 17px 3px 17px}
+#future-self .rg-message.is-user>span{color:#dac8b7}
+#future-self .rg-chat-prompts{display:flex;gap:7px;padding:9px 18px 14px;overflow-x:auto;scrollbar-width:none}
+#future-self .rg-chat-prompts>button{white-space:nowrap;border-radius:30px;background:#18304a;border:1px solid #718ead59;color:#c6dbef;font-size:10px;padding:11px 13px}
+#future-self .rg-chat-prompts>button:hover{border-color:#b59b7c;color:#fbd9b5}
+#future-self .rg-chat-compose{display:flex;gap:8px;align-items:center;margin:0;padding:13px 18px max(20px,env(safe-area-inset-bottom));border-top:1px solid #7390af33;background:#142235}
+#future-self .rg-chat-compose input:not([type=range]):not([type=color]){min-width:0;border-radius:25px;font-size:16px;padding:13px 16px;min-height:46px;background:#23364c;border:1px solid #617d9b59;color:#e7f1ff}
+#future-self .rg-chat-compose input::placeholder{font-size:11px;color:#a6b9ce}
+#future-self .rg-chat-compose button{flex-shrink:0;width:44px;height:44px;border-radius:50%;background:#f5c392;color:#493625;display:grid;place-items:center;padding:0}
+#future-self .rg-chat-compose button:disabled{opacity:.5}
+#future-self .rg-chat-compose button>svg{transform:rotate(-90deg)}
+#future-self .rg-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+#future-self .rg-chat-typing{display:flex;gap:4px;padding:13px 4px}
+#future-self .rg-chat-typing i{width:4px;height:4px;border-radius:50%;background:#f4c597;animation:rg-typing 1s ease-in-out infinite}
+#future-self .rg-chat-typing i:nth-child(2){animation-delay:.15s}#future-self .rg-chat-typing i:nth-child(3){animation-delay:.3s}
+#future-self .rg-message-row{display:flex;gap:9px;align-items:flex-start;width:100%}
+#future-self .rg-message-row.is-user{justify-content:flex-end}
+#future-self .rg-message-row.is-assistant .rg-message{max-width:calc(100% - 44px);min-width:0}
+#future-self .rg-message-avatar{display:block;flex-shrink:0;margin-top:4px;animation:rg-answer .45s ease-out both}
+#future-self .rg-message-avatar>.rg-head-crop{width:34px;height:34px;border-color:#ddb082a6}
+#future-self .rg-message-row:last-child .rg-message-avatar{animation:rg-answer .6s ease-out both}
+#future-self .rg-chat-typing .rg-message-avatar{margin-right:6px;animation:rg-head-speaking 1.2s ease-in-out infinite}
+@keyframes rg-answer{from{opacity:.35;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes rg-head-speaking{50%{transform:translateY(-2px);filter:drop-shadow(0 0 5px #f2ba8240)}}
+
+#future-self .rg-milestones{margin-bottom:28px}
+#future-self .rg-milestone-heading{padding:16px 5px 23px}#future-self .rg-milestone-heading>span{color:#f4c49a;font-size:8px;letter-spacing:1.2px}
+#future-self .rg-milestone-heading h2{font-size:28px;letter-spacing:-1px;line-height:1.2;margin:11px 0}
+#future-self .rg-milestone-heading p{color:#a7bfd6;font-size:12px}
+#future-self .rg-milestone-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#future-self .rg-milestone-card{min-width:0;position:relative;padding:12px 13px 15px;border:1px solid #516b834f;border-radius:20px;background:linear-gradient(145deg,#25394d,#19283c);overflow:hidden;display:flex;flex-direction:column}
+#future-self .rg-milestone-card.is-ready,#future-self .rg-milestone-card.is-owned{border-color:#eab78480}
+#future-self .rg-milestone-art{height:92px;position:relative;display:grid;place-items:center;isolation:isolate;color:#d9ebff}
+#future-self .rg-milestone-art>svg{width:32px;height:32px;stroke-width:1.1;filter:drop-shadow(0 0 7px #bfe1ff)}
+#future-self .rg-milestone-art>i{position:absolute;inset:15px 20px;border:1px solid #c4e4ff88;border-radius:50%;box-shadow:0 0 23px #a1c3f233,inset 0 0 17px #afd6f229;transform:rotate(-20deg);z-index:-1}
+#future-self .rg-milestone-art.is-aura{color:#ffdcb4;background:radial-gradient(ellipse,#ebaa593b,transparent 65%)}#future-self .is-aura>i{border-color:#ffce9c;box-shadow:0 0 25px #ffc78559,inset 0 0 15px #ffd29538}
+#future-self .rg-milestone-art.is-trail>i{border-style:dashed;border-color:#ffddb0;transform:rotate(24deg) scale(.8,1.3)}
+#future-self .rg-milestone-art.is-halo>i{transform:rotate(-15deg) scale(1.12,.45);box-shadow:0 0 0 7px #a6d0f00d,0 0 22px #d0e3fb77}
+#future-self .rg-milestone-art.is-world{background:radial-gradient(ellipse at 50% 80%,#79a9e35e,transparent 70%)}#future-self .is-world>i{border:1px dashed #adcef357;inset:8px 15px}
+#future-self .rg-milestone-value{font-size:10px;color:#f6c89f;letter-spacing:1px}
+#future-self .rg-milestone-card h3{font-size:14px;line-height:1.3;margin:8px 0}
+#future-self .rg-milestone-card p{font-size:10px;color:#a9bdd2;line-height:1.7;margin:0 0 15px;flex:1}
+#future-self .rg-milestone-card>button{width:100%;font-size:10px;padding:11px 6px;background:#f6c79c;color:#3c2d22;border-radius:20px;border:1px solid #ffdabb}
+#future-self .rg-milestone-card>button:disabled{background:#304459;color:#bbcadd;border-color:#8aa2b238;opacity:1}
+#future-self .rg-milestone-card.is-owned>button{color:#f4ccab;background:#86623e26;border-color:#c79b613b}
+#future-self .rg-milestone-note{font-size:10px;line-height:1.8;color:#9fb6ce;margin:16px 3px}
+#future-self .rg-xp-rewards-title{font-size:18px;margin:28px 0 16px}
+
+/* Real HTML typography animates over the fingertip art, rather than baked text. */
+#future-self .rg-intro-image{object-fit:fill;animation:rg-glass 16s ease-in-out infinite alternate}
+#future-self .rg-intro-title{top:45%;left:0;right:0;width:100%;text-align:center;line-height:1.1;font-size:clamp(70px,20vw,90px);letter-spacing:-5px}
+#future-self .rg-intro-title .rg-animated-logo{display:inline-flex;justify-content:center;letter-spacing:-6px;font-weight:800;color:#214e86;text-shadow:0 1px #f3f8ff}
+#future-self .rg-animated-logo>span{animation:rg-letter 1.8s cubic-bezier(.2,.8,.2,1) both}
+#future-self .rg-animated-logo>span:nth-child(2){animation-delay:.12s}#future-self .rg-animated-logo>span:nth-child(3){animation-delay:.24s}#future-self .rg-animated-logo>span:nth-child(4){animation-delay:.36s}#future-self .rg-animated-logo>span:nth-child(5){animation-delay:.48s}
+#future-self .rg-animated-logo>span:nth-child(4),#future-self .rg-animated-logo>span:nth-child(5){color:#3972a7}
+#future-self .rg-intro-subtitle{display:block;font-size:13px;line-height:1.8;letter-spacing:0;font-weight:500;color:#365c84;margin:23px auto 0;animation:rg-subtitle 1.2s .65s both}
+#future-self .rg-intro-hint{bottom:8%;color:#35587e}
+#future-self[data-input-method=pointer] .rg-intro-enter:focus-visible{outline:none}
+#future-self .rg-intro-enter{cursor:default}
+#future-self .rg-intro-image{animation:rg-hand-approach 4.5s cubic-bezier(.2,.65,.2,1) both;transform-origin:50% 42%}
+#future-self .rg-intro-logo-button{display:inline-block;padding:8px 14px;border:0;background:none;border-radius:14px;color:inherit;font:inherit;line-height:inherit;letter-spacing:inherit;box-shadow:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#future-self .rg-intro-logo-button .rg-animated-logo{animation:rg-logo-grow 3.8s cubic-bezier(.18,.7,.24,1) both;transform-origin:50% 65%;pointer-events:none}
+#future-self .rg-intro-logo-button:hover{filter:drop-shadow(0 0 16px #75a6df26)}
+#future-self .rg-intro-logo-button:focus-visible{outline:2px solid #4f7caf;outline-offset:10px}
+#future-self[data-input-method=pointer] .rg-intro-logo-button:focus-visible{outline:none}
+@keyframes rg-hand-approach{0%{transform:scale(.8);opacity:.15;filter:blur(8px)}40%{opacity:1;filter:blur(0)}100%{transform:scale(1.16);opacity:.2;filter:blur(3px)}}
+@keyframes rg-logo-grow{from{transform:scale(.6);opacity:.15}to{transform:scale(1.12);opacity:1}}
+@keyframes rg-letter{0%{opacity:0;filter:blur(15px);transform:translateY(12px)}100%{opacity:1;filter:blur(0);transform:translateY(0)}}
+@keyframes rg-subtitle{from{opacity:0;translate:0 5px}to{opacity:1;translate:0 0}}
+@keyframes rg-typing{50%{opacity:.3;translate:0 -3px}}
+@media(max-width:360px){#future-self .rg-chat-launch{right:-3px;width:59px;height:59px}#future-self .rg-chat-launch .rg-head-crop{width:49px;height:49px}#future-self .rg-intro-title{font-size:74px}#future-self .rg-intro-subtitle{font-size:12px}#future-self .rg-chat-header{padding-inline:15px;gap:10px}#future-self .rg-chat-header h2{font-size:14px}}
+@media(prefers-reduced-motion:reduce){#future-self .rg-animated-logo>span,#future-self .rg-intro-subtitle,#future-self .rg-intro-image,#future-self .rg-chat-typing i,#future-self .rg-message-avatar,#future-self .rg-message-row:last-child .rg-message-avatar,#future-self .rg-chat-typing .rg-message-avatar,#future-self .rg-intro-logo-button .rg-animated-logo{animation:none}#future-self .rg-intro-image{opacity:.3}#future-self .rg-intro-logo-button .rg-animated-logo{transform:scale(1.12)}#future-self .rg-chat-launch{transition:none}#future-self .rg-chat-launch:hover{transform:none}#future-self .rg-chat-messages{scroll-behavior:auto}}

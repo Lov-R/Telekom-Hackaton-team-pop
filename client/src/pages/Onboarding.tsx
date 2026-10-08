@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { Ghost } from '@/components/ghost/Ghost';
+import { Figure } from '@/components/brand/Brand';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { usePatchProfile } from '@/hooks/queries';
-import { GHOST_COLORS, GHOST_COLOR_LABELS, TONE_LABELS } from '@/lib/labels';
-import type { GameState, GhostColor, Tone } from '@/lib/types';
+import { TONE_LABELS } from '@/lib/labels';
+import { setPref, usePrefs } from '@/lib/prefs';
+import type { GameState, Tone } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 /** SRS §5.1 onboarding: tone, avatar, then notifications (asked only on click; push itself is not built yet). */
@@ -13,7 +14,7 @@ export default function Onboarding({ game }: { game: GameState }) {
   const [step, setStep] = useState(0);
   const [tone, setTone] = useState<Tone>(game.tone);
   const [name, setName] = useState(game.avatar.name);
-  const [color, setColor] = useState<GhostColor>(game.avatar.color);
+  const { figure } = usePrefs();
   const [notify, setNotify] = useState<'idle' | 'granted' | 'denied' | 'unsupported'>('idle');
   const patch = usePatchProfile();
 
@@ -27,7 +28,7 @@ export default function Onboarding({ game }: { game: GameState }) {
   };
 
   const finish = (): void => {
-    patch.mutate({ tone, avatar: { name: name.trim() || 'Duško', color }, onboarded: true });
+    patch.mutate({ tone, avatar: { name: name.trim() || 'Budući ja', color: game.avatar.color }, onboarded: true });
   };
 
   return (
@@ -45,13 +46,13 @@ export default function Onboarding({ game }: { game: GameState }) {
 
       <div className="flex flex-1 flex-col justify-center gap-6 pb-10">
         <div className="flex justify-center">
-          <Ghost presence={step === 2 ? 80 : 60} color={color} className="h-32 w-auto" />
+          <Figure presence={step === 2 ? 0.8 : 0.6} aura className="h-48 w-32" />
         </div>
 
         {step === 0 && (
           <section className="space-y-4">
             <div>
-              <h1 className="text-2xl font-semibold">Kako da ti se obraćam?</h1>
+              <h1 className="text-2xl">Kako da ti se obraćam?</h1>
               <p className="mt-1 text-sm text-muted-foreground">Ja sam ti iz budućnosti. Biraj koliko ću biti iskren.</p>
             </div>
             <div className="space-y-2">
@@ -62,7 +63,7 @@ export default function Onboarding({ game }: { game: GameState }) {
                   onClick={() => setTone(t)}
                   aria-pressed={tone === t}
                   className={cn(
-                    'w-full rounded-lg border p-4 text-left transition-colors',
+                    'w-full rounded-2xl border p-4 text-left transition-colors',
                     tone === t ? 'border-primary bg-primary/10' : 'bg-card hover:border-muted-foreground/40',
                   )}
                 >
@@ -80,33 +81,30 @@ export default function Onboarding({ game }: { game: GameState }) {
         {step === 1 && (
           <section className="space-y-5">
             <div>
-              <h1 className="text-2xl font-semibold">Složi svog duha</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Kasnije ga možeš mijenjati u Profilu.</p>
+              <h1 className="text-2xl">Odaberi budućeg sebe</h1>
+              <p className="mt-1 text-sm text-muted-foreground">Kasnije ga možeš promijeniti u Postavkama.</p>
             </div>
             <div className="space-y-1.5">
               <label htmlFor="ghost-name" className="text-sm font-medium">
-                Ime duha
+                Kako ćeš ga zvati?
               </label>
               <Input id="ghost-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={30} />
             </div>
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Boja</p>
-              <div className="flex gap-3">
-                {(Object.keys(GHOST_COLORS) as GhostColor[]).map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    aria-label={GHOST_COLOR_LABELS[c]}
-                    aria-pressed={color === c}
-                    onClick={() => setColor(c)}
-                    className={cn(
-                      'size-11 rounded-full ring-offset-2 ring-offset-background transition-shadow',
-                      color === c ? 'ring-2 ring-primary' : 'ring-1 ring-border',
-                    )}
-                    style={{ background: GHOST_COLORS[c].body }}
-                  />
-                ))}
-              </div>
+            <div className="grid grid-cols-2 gap-2">
+              {(['female', 'male'] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  aria-pressed={figure === f}
+                  onClick={() => setPref('figure', f)}
+                  className={cn(
+                    'rounded-xl border py-3 text-sm font-bold transition-colors',
+                    figure === f ? 'border-primary bg-primary/15 text-foreground' : 'bg-card text-muted-foreground',
+                  )}
+                >
+                  {f === 'female' ? 'Ona' : 'On'}
+                </button>
+              ))}
             </div>
             <Button size="lg" className="w-full" onClick={() => setStep(2)} disabled={!name.trim()}>
               Dalje
@@ -117,7 +115,7 @@ export default function Onboarding({ game }: { game: GameState }) {
         {step === 2 && (
           <section className="space-y-4">
             <div>
-              <h1 className="text-2xl font-semibold">Smijem li ti pisati?</h1>
+              <h1 className="text-2xl">Smijem li ti pisati?</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 Javit ću se kad rok stiže. Najviše 3 puta dnevno, nikad između 21 i 9 sati.
               </p>
@@ -135,9 +133,9 @@ export default function Onboarding({ game }: { game: GameState }) {
                   ? 'Obavijesti odbijene'
                   : notify === 'unsupported'
                     ? 'Dodaj relAI na početni zaslon za obavijesti'
-                    : 'Uključi obavijesti od duha'}
+                    : 'Uključi obavijesti'}
             </Button>
-            <Button size="lg" className="w-full" onClick={finish} disabled={patch.isPending}>
+            <Button size="lg" variant="warm" className="w-full" onClick={finish} disabled={patch.isPending}>
               Kreni
             </Button>
           </section>

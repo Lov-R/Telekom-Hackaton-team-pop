@@ -21,7 +21,11 @@ const parsed = schema.safeParse({
   PORT: process.env.PORT || undefined,
 });
 if (!parsed.success) {
-  console.error('Neispravna konfiguracija:', parsed.error.issues.map((i) => i.message).join('; '));
+  const msg = 'Neispravna konfiguracija: ' + parsed.error.issues.map((i) => i.message).join('; ');
+  console.error(msg);
+  if (process.env.RELAI_RUNTIME === 'netlify') {
+    throw new Error(msg);
+  }
   process.exit(1);
 }
 export const env = parsed.data;

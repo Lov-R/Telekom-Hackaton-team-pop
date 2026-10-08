@@ -1,0 +1,47 @@
+#future-self button{cursor:pointer}
+#future-self .fs-settings-layout{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+#future-self .fs-settings-layout>.fs-panel{display:grid;gap:16px}
+#future-self .fs-tone-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:#1b1c20;padding:5px;border-radius:10px}
+#future-self .fs-tone-picker button{background:transparent;border-radius:7px;padding:10px 5px;font-size:14px;color:#b5bdc6}
+#future-self .fs-tone-picker button[aria-pressed=true]{background:#35414f;color:#c1d5ee}
+#future-self .fs-check{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#c0c6ce;line-height:1.5}
+#future-self input[type=checkbox]:not([type=range]):not([type=color]){width:18px;height:18px;min-height:18px;margin-top:2px;accent-color:var(--fs-accent);flex-shrink:0;padding:0}
+#future-self .fs-small-print{font-size:12px;color:var(--fs-muted);line-height:1.7;margin-top:9px}
+#future-self .fs-phone-preview{background:radial-gradient(ellipse at 50% 65%,#394350,#21262b 70%);border:1px solid #4a5461;border-radius:30px;padding:35px 18px 25px;text-align:center;min-height:370px;box-shadow:inset 0 0 0 5px #1a1a21}
+#future-self .fs-phone-time{font-size:64px;line-height:1.2;letter-spacing:-3px;font-weight:300;color:#d7dbe0}
+#future-self .fs-phone-date{display:block;font-size:14px;color:#b8bfc8;margin:3px 0 32px}
+#future-self .fs-push-card{text-align:left;background:#4b5561c7;border:1px solid #77859644;padding:15px;border-radius:16px;box-shadow:0 8px 25px #15181c33}
+#future-self .fs-push-app{display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#c1c8d0;margin-bottom:7px;letter-spacing:.5px}
+#future-self .fs-push-app>span:first-child{display:flex;gap:6px;align-items:center}
+#future-self .fs-push-app svg{width:14px;height:14px}
+#future-self .fs-push-card strong{font-size:14px;display:block;margin-bottom:5px}
+#future-self .fs-push-card p{font-size:14px;line-height:1.5;color:#e0e3e7}
+#future-self .fs-preview-caption{display:block;margin-top:28px;font-size:10px;letter-spacing:1.2px;color:#a9b2bd}
+#future-self .fs-connection-card{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid var(--fs-line);padding:18px;border-radius:16px;margin-top:18px;background:var(--fs-panel)}
+#future-self .fs-connection-card button{width:100%;margin-top:5px}
+#future-self .fs-connection-icon{background:#323840;color:#c1cad5;border-radius:11px;padding:12px;display:flex}
+#future-self .fs-proof-options{border:1px solid #404852;padding:18px;border-radius:12px;display:grid;gap:15px;margin:0;min-width:0}
+#future-self .fs-proof-options legend{padding:0 7px;font-size:14px;color:#c3cfdd}
+#future-self .fs-evidence{padding:18px;border:1px solid #515e6d;background:#252a30;border-radius:14px}
+#future-self .fs-evidence h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#future-self .fs-proof-badge{font-size:10px;letter-spacing:1px;color:#b0c4dc;white-space:nowrap}
+#future-self .fs-upload{border:1px dashed #7f8ea1;border-radius:10px;margin-top:17px;min-height:74px;display:flex;flex-direction:column;gap:7px;align-items:center;justify-content:center;position:relative;font-size:14px;color:#cedbeb;background:#323840;overflow:hidden;cursor:pointer;padding:15px}
+#future-self .fs-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+#future-self .fs-upload:focus-within{outline:2px solid #75a2da;outline-offset:3px}
+#future-self .fs-photo-preview{background:#1c1d22;border-radius:10px;min-height:100px;display:grid;place-items:center;overflow:hidden;margin:13px 0;color:var(--fs-muted);font-size:13px}
+#future-self .fs-photo-preview img{width:100%;max-height:260px;object-fit:contain;display:block}
+#future-self .fs-evidence-none{display:flex;align-items:center;gap:9px;color:var(--fs-muted);font-size:14px;margin:20px 0}
+#future-self .fs-evidence-none svg{flex-shrink:0}
+#future-self .fs-calendar-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--fs-line);flex-wrap:wrap}
+#future-self .fs-apple-panel{max-width:630px;margin:auto}
+#future-self .fs-apple-heading{display:flex;gap:15px;align-items:center;margin-bottom:18px}
+#future-self .fs-apple-heading>svg{width:42px;height:42px;color:#c4cbd3}
+#future-self .fs-apple-heading h2{font-size:25px;margin-top:7px}
+#future-self .fs-calendar-options{display:grid;gap:10px;margin:23px 0}
+#future-self .fs-calendar-option{display:flex;gap:13px;align-items:center;padding:15px;border:1px solid var(--fs-line);border-radius:10px;background:#202127}
+#future-self .fs-calendar-option strong{display:block;font-size:15px;font-weight:500}
+#future-self .fs-calendar-option small{display:block;font-size:12px;color:var(--fs-muted)}
+#future-self .fs-import-sample{border:1px solid #515c69;padding:18px;border-radius:12px;margin-top:20px}
+#future-self .fs-import-sample button{margin-top:13px}
+@media(max-width:760px){#future-self .fs-settings-layout{grid-template-columns:1fr}#future-self .fs-phone-preview{max-width:360px;margin:auto;min-height:340px}#future-self .fs-settings-layout>.fs-panel{order:2}}
+@media(max-width:500px){#future-self .fs-evidence{padding:14px}#future-self .fs-evidence .fs-section-heading{display:block}#future-self .fs-proof-badge{display:block;margin-top:6px}#future-self .fs-apple-heading h2{font-size:22px}#future-self .fs-small-print{font-size:12px}}

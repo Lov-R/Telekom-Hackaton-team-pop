@@ -8,6 +8,9 @@ import { downscaleImage } from '@/lib/image';
 /** Netlify accepts request bodies up to ~4.5 MB of binary data. */
 const MAX_PDF_BYTES = 4 * 1024 * 1024;
 
+/** The file input's id, so other buttons (the Dokumenti header) can open the same picker with a <label>. */
+export const PICKER_ID = 'document-picker';
+
 /** SRS §5.2: "Slikaj dokument" (camera) and "Uploadaj datoteku" (image or PDF). */
 export function UploadButtons() {
   const camera = useRef<HTMLInputElement>(null);
@@ -39,16 +42,22 @@ export function UploadButtons() {
   };
 
   return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-2">
-        <Button size="lg" disabled={busy} onClick={() => camera.current?.click()}>
-          {busy ? <Loader2 className="animate-spin" /> : <Camera />} Slikaj dokument
+    <div className="rounded-2xl border bg-card p-4">
+      <div className="flex items-start gap-3">
+        <FileUp className="mt-0.5 size-5 shrink-0 text-primary" />
+        <div className="min-w-0">
+          <p className="font-extrabold">Dodaj datoteke</p>
+          <p className="text-xs text-muted-foreground">PDF ili fotografija · do 4 MB · pročitam ih kad ih otvoriš</p>
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Button variant="warm" disabled={busy} onClick={() => camera.current?.click()}>
+          {busy ? <Loader2 className="animate-spin" /> : <Camera />} Slikaj
         </Button>
-        <Button size="lg" variant="secondary" disabled={busy} onClick={() => picker.current?.click()}>
-          <FileUp /> Uploadaj datoteku
+        <Button variant="secondary" disabled={busy} onClick={() => picker.current?.click()}>
+          <FileUp /> Datoteka
         </Button>
       </div>
-      <p className="text-xs text-muted-foreground">Položi dokument na stol i slikaj odozgo, cijeli u kadru.</p>
       <input
         ref={camera}
         type="file"
@@ -62,6 +71,7 @@ export function UploadButtons() {
       />
       <input
         ref={picker}
+        id={PICKER_ID}
         type="file"
         accept="image/*,application/pdf"
         className="hidden"

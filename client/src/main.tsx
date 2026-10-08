@@ -4,9 +4,17 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
+import { applyTheme, usePrefs } from '@/lib/prefs';
 import { queryClient } from '@/lib/queryClient';
 import App from './App';
 import './index.css';
+
+applyTheme();
+
+function ThemedToaster() {
+  const { theme } = usePrefs();
+  return <Toaster position="top-center" theme={theme} />;
+}
 
 // Netlify adds its badge script to the served HTML; reserve room for the badge only then (see index.css).
 if (document.querySelector('script[src^="/.netlify/scripts/hud"]')) {
@@ -27,7 +35,7 @@ createRoot(document.getElementById('root') as HTMLElement).render(
         <BrowserRouter>
           <App />
         </BrowserRouter>
-        <Toaster position="top-center" theme="dark" />
+        <ThemedToaster />
       </TooltipProvider>
     </QueryClientProvider>
   </StrictMode>,

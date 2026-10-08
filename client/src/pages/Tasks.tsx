@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { CheckCircle2, ListChecks, Plus, Target } from 'lucide-react';
 import { EmptyState, ErrorState, ListSkeleton } from '@/components/common/States';
-import { PageHeader } from '@/components/layout/PageHeader';
+import { RecommendationCard } from '@/components/calendar/RecommendationCard';
+import { TaskCalendar } from '@/components/calendar/TaskCalendar';
+import { Segmented } from '@/components/common/Segmented';
 import { GoalCard } from '@/components/tasks/GoalCard';
 import { GoalForm } from '@/components/tasks/GoalForm';
 import { TaskItem } from '@/components/tasks/TaskItem';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useGoals, useTasks, type TaskFilter } from '@/hooks/queries';
+import { useGoals, useRecommendations, useTasks, type TaskFilter } from '@/hooks/queries';
 import { openNewTask } from '@/lib/taskDialogs';
 import type { Goal } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 const FILTERS: { key: TaskFilter; label: string }[] = [
   { key: 'open', label: 'Otvoreni' },
@@ -25,24 +25,13 @@ function TasksTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex gap-1 rounded-md bg-muted p-1">
-          {FILTERS.map((f) => (
-            <button
-              key={f.key}
-              type="button"
-              onClick={() => setFilter(f.key)}
-              className={cn(
-                'rounded-sm px-3 py-1 text-sm font-medium transition-colors',
-                filter === f.key ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground',
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-        <Button size="sm" onClick={() => openNewTask()}>
-          <Plus /> Zadatak
-        </Button>
+        <Segmented<TaskFilter>
+          label="Filtar"
+          value={filter}
+          options={FILTERS.map((f) => ({ value: f.key, label: f.label }))}
+          onChange={setFilter}
+          className="w-full"
+        />
       </div>
 
       {isLoading && <ListSkeleton rows={4} />}
@@ -55,7 +44,7 @@ function TasksTab() {
           }
           description={
             filter === 'done'
-              ? 'Riješi zadatak i duh će se pomaknuti po mapi.'
+              ? 'Riješi zadatak i budući ti zakoračit će dalje po mapi.'
               : 'Slikaj dokument ili reci asistentu što trebaš napraviti.'
           }
         />
@@ -114,26 +103,53 @@ function GoalsTab() {
   );
 }
 
-export default function Tasks() {
+function RecommendationsSection() {
+  const { data: recs } = useRecommendations();
+  if (!recs || recs.length === 0) return null;
   return (
-    <>
-      <PageHeader title="Zadaci i ciljevi" backTo="/" />
-      <Tabs defaultValue="tasks" className="gap-4">
-        <TabsList className="grid h-11 w-full grid-cols-2 rounded-lg">
-          <TabsTrigger value="tasks" className="rounded-lg font-semibold">
-            Zadaci
-          </TabsTrigger>
-          <TabsTrigger value="goals" className="rounded-lg font-semibold">
-            Ciljevi
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="tasks">
-          <TasksTab />
-        </TabsContent>
-        <TabsContent value="goals">
-          <GoalsTab />
-        </TabsContent>
-      </Tabs>
-    </>
+    <section className="space-y-3">
+      <h2 className="text-lg">Preporuke</h2>
+      {recs.map((r) => (
+        <RecommendationCard key={r.id} rec={r} />
+      ))}
+    </section>
+  );
+}
+
+type Tab = 'calendar' | 'list' | 'goals';
+
+/** relAI-UX Zadaci: calendar (day/week/month), the filtered list and goals, with one main action: a new task. */
+export default function Tasks() {
+  const [tab, setTab] = useState<Tab>('calendar');
+  return (
+    <div className="space-y-5">
+      <header className="flex items-start justify-between gap-3">
+        <h1 className="hero-title">
+          Napravi prostor
+          <span>za bitno.</span>
+        </h1>
+        <Button variant="warm" size="icon-lg" className="size-12 rounded-2xl" aria-label="Novi zadatak" onClick={() => openNewTask()}>
+          <Plus className="size-6" />
+        </Button>
+      </header>
+      <Segmented<Tab>
+        label="Prikaz"
+        value={tab}
+        options={[
+          { value: 'calendar', label: 'Kalendar' },
+          { value: 'list', label: 'Popis' },
+          { value: 'goals', label: 'Ciljevi' },
+        ]}
+        onChange={setTab}
+      />
+      {tab === 'calendar' && (
+        <>
+          <TaskCalendar />
+          <RecommendationsSection />
+        </>
+      )}
+      {tab === 'list' && <TasksTab />}
+      {tab === 'goals' && <GoalsTab />}
+    </div>
   );
 }

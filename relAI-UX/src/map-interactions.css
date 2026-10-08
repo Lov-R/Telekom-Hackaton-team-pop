@@ -1,0 +1,26 @@
+/* The HUD stays still; the terrain, fields and people share one camera. */
+#future-self .rg-brand-button,#future-self .rg-brand-button:hover,#future-self .rg-brand-button:active{background:transparent;border:0;box-shadow:none}
+#future-self .rg-brand-button .fs-relai-logo{background:transparent;mix-blend-mode:normal;border-radius:0}
+#future-self .rg-world-heading{padding:9px 20px 10px;gap:8px;background:linear-gradient(#0b1420b3,transparent);min-height:49px}
+#future-self .rg-world-heading h1{font-size:12px;letter-spacing:.7px;color:#f6c59b;line-height:1.3;margin:0;white-space:nowrap}
+#future-self .rg-modes button{min-height:36px;padding:9px 12px;white-space:nowrap;font-size:10px}
+#future-self .rg-world{inset:116px 0 112px;overflow:hidden;touch-action:none;overscroll-behavior:contain;cursor:grab;user-select:none;-webkit-user-select:none;background:radial-gradient(ellipse at 50% 40%,#4e6b83,#152938 74%,#0b1420)}
+#future-self .rg-world-scene{position:absolute;inset:0;transform-origin:50% 50%;will-change:transform;isolation:isolate}
+#future-self .rg-world-scene button{touch-action:none}
+#future-self .rg-world.is-dragging,#future-self .rg-world.is-dragging button{cursor:grabbing}
+#future-self .rg-world.is-dragging .rg-player .rg-human-render{animation-play-state:paused}
+#future-self .rg-world-vignette{z-index:8;background:linear-gradient(#0b1420 0%,#0b142010 8%,transparent 18%,transparent 88%,#0b1420 100%)}
+#future-self .rg-stop-tip{z-index:10;left:17px;right:72px;bottom:13px;line-height:1.6;cursor:auto;backdrop-filter:blur(12px);background:#15293deb;border-color:#9cc4df70}
+#future-self .rg-stop-tip button{min-width:34px;min-height:34px;align-items:center;justify-content:center}
+#future-self .rg-map-camera{position:absolute;bottom:148px;left:18px;z-index:9;display:flex;flex-direction:column;align-items:center;width:42px;padding:2px 0;border-radius:24px;background:#14283cc9;border:1px solid #bbd5eb5c;box-shadow:0 5px 25px #06152566;backdrop-filter:blur(16px)}
+#future-self .rg-map-camera button{display:grid;place-items:center;width:40px;height:40px;min-height:40px;padding:10px;background:transparent;border:0;border-radius:50%;color:#e0efff}
+#future-self .rg-map-camera button:hover{background:#cbe4f41a;color:#fff}
+#future-self .rg-map-camera button:disabled{opacity:.3;cursor:default}
+#future-self .rg-map-camera button[data-map-camera=home]{border-top:1px solid #93b4d22e;border-radius:0 0 24px 24px;color:#ffd7af}
+#future-self .rg-map-camera svg{width:17px;height:17px}
+#future-self .rg-map-camera output{font-size:8px;color:#c8dceb;font-variant-numeric:tabular-nums;pointer-events:none;line-height:14px}
+#future-self .rg-map-help{position:absolute;bottom:119px;left:0;right:0;z-index:8;text-align:center;pointer-events:none;font-size:9px;letter-spacing:.5px;color:#c1d5e5;text-shadow:0 1px 5px #0b1420}
+#future-self.rg-revealed .rg-world{animation:rg-camera-reveal .8s ease-out both}
+@keyframes rg-camera-reveal{from{opacity:.3;filter:blur(4px)}to{opacity:1;filter:blur(0)}}
+@media(max-width:360px){#future-self .rg-world-heading{padding-inline:15px}#future-self .rg-world-heading h1{font-size:10px;letter-spacing:.4px}#future-self .rg-modes button{padding-inline:10px;font-size:9px}#future-self .rg-map-camera{left:13px}#future-self .rg-map-tools{right:13px}}
+@media(prefers-reduced-motion:reduce){#future-self.rg-revealed .rg-world{animation:none}}

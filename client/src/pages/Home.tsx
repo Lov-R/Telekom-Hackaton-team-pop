@@ -1,118 +1,199 @@
-import { CheckCircle2, ChevronRight, Crown, Flame, Star } from 'lucide-react';
+import { useRef } from 'react';
+import { ArrowRight, Check, CheckCircle2, ChevronRight, Crown, Flag, Flame, Heart, LocateFixed, Minus, Plus } from 'lucide-react';
 import { Link } from 'react-router';
+import { Figure, Logo } from '@/components/brand/Brand';
 import { RecommendationCard } from '@/components/calendar/RecommendationCard';
 import { EmptyState, ErrorState } from '@/components/common/States';
-import { Ghost } from '@/components/ghost/Ghost';
+import { useMapCamera } from '@/components/map/useMapCamera';
 import { TaskItem } from '@/components/tasks/TaskItem';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDashboard } from '@/hooks/queries';
 import { formatDate } from '@/lib/dates';
 import { MOOD_MESSAGES, moodFor } from '@/lib/labels';
-import type { GameState, MapMarker } from '@/lib/types';
+import type { Dashboard, GameState, MapMarker } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 const FIELDS = 10;
-/** Horizontal offset of each field from the centre line, in % of the width: a winding path. */
-const X_OFFSET = [-18, 0, 18, 0, -18, 0, 18, 0, -18, 0];
-
-/** Field 1 at the bottom, the boss (10) at the top. Returns % coordinates inside the map box. */
-const fieldPos = (field: number): { x: number; y: number } => ({
-  x: 32 + X_OFFSET[field - 1],
-  y: 94 - (field - 1) * 9.7,
-});
-
-/** SRS §11: five maps, each with its own atmosphere, from swamp fog to light on the peak. */
-const ATMOSPHERE = [
-  'from-[#1d2622] via-[#232b27] to-[#1c1c1e]', // Močvara Odgađanja
-  'from-[#1f2a20] via-[#24261f] to-[#1c1c1e]', // Šuma Papira
-  'from-[#22222e] via-[#26242f] to-[#1c1c1e]', // Grad Obaveza
-  'from-[#2a2533] via-[#2d2430] to-[#1c1c1e]', // Planina Discipline
-  'from-[#3a3222] via-[#2e2a22] to-[#1c1c1e]', // Vrh Mirne Glave
+/** SRS §6.3's 10 fields placed on the path drawn in relAI-UX path-v6 (its STOPS, % of the art), bottom to top. */
+const STOPS: [number, number][] = [
+  [36, 94],
+  [35, 86],
+  [48, 76],
+  [63, 66],
+  [55, 59],
+  [38, 52],
+  [40, 44],
+  [70, 32],
+  [42, 21],
+  [54, 12],
 ];
 
-function MapBoard({ game }: { game: GameState }) {
+function Stop({ field, game, marker }: { field: number; game: GameState; marker?: MapMarker }) {
+  const [x, y] = STOPS[field - 1];
+  const done = field < game.field;
+  const current = field === game.field;
+  const boss = field === FIELDS;
+  // Only the next few fields and the boss carry a label; further ones show a dot, so the map stays readable.
+  const labelled = marker?.kind === 'boss' || (field >= game.field && field <= game.field + 2);
+  return (
+    <div className="absolute" style={{ left: `${x}%`, top: `${y}%` }}>
+      <div
+        className={cn(
+          'flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[50%] border text-[10px] font-extrabold',
+          boss
+            ? 'h-9 w-11 border-warm bg-gradient-to-b from-[#ffd9b5] to-[#c98a52] text-[#3d230f] shadow-[0_0_22px_rgb(243_179_125/0.6)]'
+            : done
+              ? 'h-6 w-7 border-[#b6ceec] bg-gradient-to-b from-[#8ab0df] to-[#3f6695] text-white shadow-[0_3px_0_#2e435d,0_0_14px_rgb(127_214_164/0.55)]'
+              : current
+                ? 'h-7 w-9 border-2 border-[#c8daf0] bg-[#5984b9] text-transparent shadow-[0_0_0_5px_rgb(84_125_176/0.27),0_0_25px_rgb(95_148_213/0.6)]'
+                : 'h-6 w-7 border-[#a2abb7] bg-gradient-to-br from-[#444d58] to-[#272c32] text-[#d4d9e0] opacity-85 shadow-[0_3px_0_#1b2129]',
+        )}
+        aria-label={`Polje ${field}${current ? ', tvoja pozicija' : done ? ', prijeđeno' : ''}${boss ? ', boss' : ''}`}
+      >
+        {boss ? <Crown className="size-4" /> : done ? <Check className="size-3.5" strokeWidth={3} /> : field}
+      </div>
+      {marker && !labelled && (
+        <span aria-hidden className="absolute -top-3.5 right-0 size-2 rounded-full bg-warm shadow-[0_0_6px_var(--warm)]" />
+      )}
+      {marker && labelled && (
+        <Link
+          to="/zadaci"
+          className={cn(
+            'absolute top-0 left-6 flex max-w-36 -translate-y-1/2 items-baseline gap-1.5 rounded-lg border border-white/10 bg-[#0b1420]/80 px-2 py-1 text-[10px] leading-tight text-[#eef3f9] backdrop-blur-sm',
+            marker.kind === 'boss' && 'border-warm/60',
+          )}
+        >
+          <span className="min-w-0 flex-1 truncate font-bold">{marker.kind === 'boss' ? `Boss: ${marker.title}` : marker.title}</span>
+          {marker.date && <span className="shrink-0 text-[#a9bbd0]">{formatDate(marker.date, 'd.M.')}</span>}
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function MapWorld({ data }: { data: Dashboard }) {
+  const { game } = data;
+  const viewport = useRef<HTMLDivElement>(null);
+  const field = Math.min(game.field, FIELDS);
+  const [ax, ay] = STOPS[field - 1];
+  const { cam, world, handlers, zoomAt, recenter } = useMapCamera(viewport, { x: ax, y: ay }, 150);
   const markers = new Map<number, MapMarker>(game.markers.map((m) => [m.field, m]));
-  const ghostAt = fieldPos(Math.min(game.field, FIELDS));
-  const points = Array.from({ length: FIELDS }, (_, i) => fieldPos(i + 1));
+  const next = data.dueTasks[0];
 
   return (
-    <div
-      className={cn(
-        '@container relative h-[600px] overflow-hidden rounded-2xl bg-gradient-to-t',
-        ATMOSPHERE[game.phaseIndex],
-      )}
-    >
-      {game.phaseIndex === 0 && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/[0.04] to-transparent" />
-      )}
-      <svg className="absolute inset-0 size-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
-        <polyline
-          points={points.map((p) => `${p.x},${p.y}`).join(' ')}
-          fill="none"
-          stroke="var(--border)"
-          strokeWidth="3"
-          strokeDasharray="2 6"
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
+    <div className="relative h-[calc(100dvh-4rem-max(env(safe-area-inset-bottom),var(--host-badge)))] overflow-hidden bg-[#0b1420] text-[#eef3f9] md:h-[calc(100dvh-3rem-var(--host-badge))] md:rounded-3xl md:border">
+      {/* The world: art, fields and figure move together; HUD and controls stay put. */}
+      <div
+        ref={viewport}
+        tabIndex={0}
+        aria-label="Mapa. Povuci za pomicanje, strelice i +/− za zum, Home za povratak."
+        className="absolute inset-0 cursor-grab touch-none outline-none select-none active:cursor-grabbing"
+        {...handlers}
+      >
+        <div
+          className="absolute top-0 left-0 origin-top-left will-change-transform"
+          style={{ width: world.w, height: world.h, transform: `translate3d(${cam.x}px, ${cam.y}px, 0) scale(${cam.zoom})` }}
+        >
+          <img src="/ux/path.webp" alt="" draggable={false} className="pointer-events-none absolute inset-0 size-full" />
+          {Array.from({ length: FIELDS }, (_, i) => (
+            <Stop key={i + 1} field={i + 1} game={game} marker={markers.get(i + 1)} />
+          ))}
+          <div
+            className="absolute z-10 transition-[left,top] duration-[900ms] ease-in-out"
+            style={{ left: `${ax}%`, top: `${ay}%` }}
+          >
+            <Link to="/profil" aria-label="Tvoj avatar" className="block -translate-x-1/2 -translate-y-[95%]">
+              <Figure presence={game.presence / 100} aura className="h-28 w-[4.5rem]" />
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(#0b1420_0,transparent_22%,transparent_70%,#0b1420_100%)]" />
 
-      {points.map((p, i) => {
-        const field = i + 1;
-        const passed = field < game.field;
-        const current = field === game.field;
-        const isBoss = field === FIELDS;
-        const marker = markers.get(field);
-        return (
-          <div key={field} className="absolute" style={{ left: `${p.x}%`, top: `${p.y}%` }}>
-            <div
-              className={cn(
-                'flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full font-mono text-xs tabular-nums',
-                isBoss
-                  ? 'size-12 bg-primary/20 text-primary ring-2 ring-primary/60'
-                  : passed
-                    ? 'bg-primary text-primary-foreground'
-                    : current
-                      ? 'bg-secondary text-foreground ring-2 ring-primary'
-                      : 'bg-secondary/70 text-muted-foreground',
-              )}
-            >
-              {isBoss ? <Crown className="size-5" /> : field}
+      {/* HUD */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]">
+        <div className="pointer-events-auto flex items-center gap-2">
+          <Logo onDark className="mr-auto h-8 md:invisible" />
+          <div className="flex min-w-24 items-center gap-2 rounded-2xl border border-white/10 bg-[#111b27]/85 px-3 py-1.5 backdrop-blur">
+            <Heart className="size-4 text-[#c1dcf7]" />
+            <div className="flex-1">
+              <p className="text-sm leading-none font-extrabold tabular-nums">
+                {game.hp} <span className="text-[10px] font-semibold text-[#a9bbd0]">HP</span>
+              </p>
+              <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[#3a69a3] to-[#8ebef4] transition-[width] duration-700"
+                  style={{ width: `${game.hp}%` }}
+                />
+              </div>
             </div>
-            {marker && (
-              <Link
-                to={marker.kind === 'boss' ? '/zadaci' : '/kalendar'}
-                style={{ width: `calc(${100 - p.x}cqw - 2.5rem)` }}
-                className={cn(
-                  'absolute top-0 left-8 flex -translate-y-1/2 items-baseline gap-2 rounded-md bg-card/90 px-2 py-1 text-[11px] leading-tight shadow-sm',
-                  marker.kind === 'boss' && 'ring-1 ring-primary/60',
-                )}
-              >
-                <span className="min-w-0 flex-1 truncate font-medium">
-                  {marker.kind === 'boss' ? `Boss: ${marker.title}` : marker.title}
-                </span>
-                {marker.date && (
-                  <span className="shrink-0 font-mono text-muted-foreground">{formatDate(marker.date, 'd.M.')}</span>
-                )}
-              </Link>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-[#111b27]/85 px-3 py-2 text-sm font-extrabold backdrop-blur">
+            {game.streak > 0 ? (
+              <>
+                <Flame className="size-4 text-warm" /> {game.streak}
+              </>
+            ) : (
+              <>
+                <span className="text-[10px] font-semibold text-[#a9bbd0]">MAPA</span> {Math.min(game.mapIndex, 5)}/5
+              </>
             )}
           </div>
-        );
-      })}
+        </div>
+        <div className="mt-4 flex items-baseline justify-between gap-3">
+          <p className="text-[15px] font-extrabold text-warm">step by step</p>
+          <p className="truncate text-xs font-semibold text-[#a9bbd0]">
+            {game.mapName} · {game.phase}
+          </p>
+        </div>
+      </div>
 
-      {/* The ghost slides between fields when HP changes (§6.3). */}
-      <div
-        className="absolute z-10 transition-[left,top] duration-[900ms] ease-in-out"
-        style={{ left: `${ghostAt.x}%`, top: `${ghostAt.y}%` }}
-      >
-        <Ghost
-          presence={game.presence}
-          color={game.avatar.color}
-          accessory={game.avatar.accessory}
-          phaseIndex={game.phaseIndex}
-          pulse={game.totalHp}
-          className="h-24 w-auto -translate-x-1/2 -translate-y-[92%]"
-        />
+      {/* Zoom controls */}
+      <div className="absolute bottom-48 left-4 z-20 flex flex-col items-center rounded-2xl border border-white/10 bg-[#111b27]/85 backdrop-blur">
+        <button type="button" onClick={() => zoomAt(cam.zoom * 1.25)} aria-label="Približi" className="p-2.5">
+          <Plus className="size-5" />
+        </button>
+        <span className="text-[10px] font-bold tabular-nums">{Math.round(cam.zoom * 100)}%</span>
+        <button type="button" onClick={() => zoomAt(cam.zoom / 1.25)} aria-label="Udalji" className="p-2.5">
+          <Minus className="size-5" />
+        </button>
+        <span className="h-px w-6 bg-white/10" />
+        <button type="button" onClick={() => recenter(1)} aria-label="Pronađi avatara" className="p-2.5">
+          <LocateFixed className="size-5" />
+        </button>
+      </div>
+
+      {/* Next step */}
+      <div className="absolute inset-x-4 bottom-4 z-20">
+        <p className="mb-2 text-center text-[11px] font-semibold text-[#a9bbd0]">
+          {MOOD_MESSAGES[moodFor(game.presence)]}
+        </p>
+        <Link
+          to="/zadaci"
+          className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#111b27]/90 p-4 backdrop-blur-md transition-colors hover:border-[#8ebef4]/50"
+        >
+          <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/5 text-[#c1dcf7]">
+            <Flag className="size-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[10px] font-bold tracking-[0.14em] text-[#a9bbd0] uppercase">Sljedeći korak</span>
+            <span className="block truncate font-extrabold">
+              {next?.title ?? (game.boss ? `Boss: ${game.boss.title}` : 'Ništa ne gori')}
+            </span>
+            <span className="block text-xs text-[#a9bbd0]">
+              {next?.dueDate
+                ? `rok ${formatDate(next.dueDate)}`
+                : next?.date
+                  ? formatDate(next.date)
+                  : next
+                    ? ''
+                    : 'Slikaj dokument i pronaći ću sljedeći.'}
+            </span>
+          </span>
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-warm text-warm-foreground">
+            <ArrowRight className="size-5" />
+          </span>
+        </Link>
       </div>
     </div>
   );
@@ -121,7 +202,7 @@ function MapBoard({ game }: { game: GameState }) {
 function SectionTitle({ title, to, linkLabel }: { title: string; to: string; linkLabel: string }) {
   return (
     <div className="mb-3 flex items-baseline justify-between">
-      <h2 className="text-lg font-semibold">{title}</h2>
+      <h2 className="text-lg">{title}</h2>
       <Link to={to} className="flex items-center gap-0.5 text-sm text-muted-foreground hover:text-foreground">
         {linkLabel} <ChevronRight className="size-4" />
       </Link>
@@ -132,96 +213,47 @@ function SectionTitle({ title, to, linkLabel }: { title: string; to: string; lin
 export default function Home() {
   const { data, isLoading, isError, error, refetch } = useDashboard();
 
-  if (isLoading) {
+  if (isLoading) return <Skeleton className="h-[calc(100dvh-4rem)] md:rounded-3xl" />;
+  if (isError || !data) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-16 rounded-lg" />
-        <Skeleton className="h-[600px] rounded-2xl" />
+      <div className="p-4">
+        <ErrorState message={error?.message} onRetry={() => void refetch()} />
       </div>
     );
   }
-  if (isError || !data) return <ErrorState message={error?.message} onRetry={() => void refetch()} />;
-
-  const { game } = data;
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
-        <div className="flex items-end justify-between gap-3">
-          <div className="min-w-0">
-            <p className="label-caps">
-              Mapa {Math.min(game.mapIndex, 5)} · {game.phase}
-            </p>
-            <h1 className="mt-1 truncate text-2xl font-semibold">{game.mapName}</h1>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {game.stars > 0 && (
-              <span className="flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-1 font-mono text-xs text-gold">
-                <Star className="size-3.5" /> ×{game.stars + 1}
-              </span>
-            )}
-            {game.streak > 0 && (
-              <span className="flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 font-mono text-xs tabular-nums">
-                <Flame className="size-3.5 text-primary" /> {game.streak}
-              </span>
-            )}
-          </div>
-        </div>
-        <div>
-          <div className="mb-1.5 flex items-baseline justify-between">
-            <span className="font-mono text-3xl font-medium tracking-tight tabular-nums">
-              {game.hp}
-              <span className="text-base text-muted-foreground"> / 100 HP</span>
-            </span>
-            <span className="text-xs text-muted-foreground">na 100 nova mapa</span>
-          </div>
-          <div
-            className="h-2 overflow-hidden rounded-full bg-secondary"
-            role="progressbar"
-            aria-valuenow={game.hp}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="HP na ovoj mapi"
-          >
-            <div className="h-full rounded-full bg-primary transition-[width] duration-700" style={{ width: `${game.hp}%` }} />
-          </div>
-        </div>
-      </header>
-
-      <section aria-label="Mapa">
-        <MapBoard game={game} />
-        <p className="mt-3 text-center text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{game.avatar.name}:</span> {MOOD_MESSAGES[moodFor(game.presence)]}
-        </p>
-      </section>
-
-      <section>
-        <SectionTitle title="Na redu" to="/zadaci" linkLabel="Svi zadaci" />
-        {data.dueTasks.length === 0 ? (
-          <EmptyState
-            icon={CheckCircle2}
-            title="Ništa ne gori"
-            description="Nema rokova u sljedećih 7 dana. Slikaj dokument i pronaći ću sljedeći."
-          />
-        ) : (
-          <div className="space-y-2">
-            {data.dueTasks.map((t) => (
-              <TaskItem key={t.id} task={t} compact />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {data.recommendations.length > 0 && (
+    <div>
+      <MapWorld data={data} />
+      <div className="space-y-8 px-4 pt-8 pb-[calc(9rem+var(--host-badge))] md:px-0">
         <section>
-          <SectionTitle title="Preporuke" to="/kalendar" linkLabel="Kalendar" />
-          <div className="space-y-3">
-            {data.recommendations.map((r) => (
-              <RecommendationCard key={r.id} rec={r} />
-            ))}
-          </div>
+          <SectionTitle title="Na redu" to="/zadaci" linkLabel="Svi zadaci" />
+          {data.dueTasks.length === 0 ? (
+            <EmptyState
+              icon={CheckCircle2}
+              title="Ništa ne gori"
+              description="Nema rokova u sljedećih 7 dana. Slikaj dokument i pronaći ću sljedeći."
+            />
+          ) : (
+            <div className="space-y-2">
+              {data.dueTasks.map((t) => (
+                <TaskItem key={t.id} task={t} compact />
+              ))}
+            </div>
+          )}
         </section>
-      )}
+
+        {data.recommendations.length > 0 && (
+          <section>
+            <SectionTitle title="Preporuke" to="/zadaci" linkLabel="Zadaci" />
+            <div className="space-y-3">
+              {data.recommendations.map((r) => (
+                <RecommendationCard key={r.id} rec={r} />
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 }

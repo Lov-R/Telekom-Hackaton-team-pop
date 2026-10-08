@@ -15,9 +15,9 @@ export function CategoryFilter({ value, onChange, subcategory, onSubcategoryChan
   const total = data?.reduce((n, c) => n + c.count, 0) ?? 0;
   const chip = (active: boolean): string =>
     cn(
-      'flex h-8 shrink-0 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors',
+      'flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-bold transition-colors',
       active
-        ? 'border-foreground bg-foreground text-background'
+        ? 'border-transparent bg-glow text-[#0b1420]'
         : 'bg-card text-muted-foreground hover:text-foreground',
     );
   const subs = data?.find((c) => c.key === value)?.subcategories ?? [];

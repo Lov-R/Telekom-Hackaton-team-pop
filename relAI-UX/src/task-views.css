@@ -1,0 +1,54 @@
+#future-self .rg-task-calendar{--calendar-muted:var(--fs-muted,#a8b5c7);--calendar-surface:rgba(137,178,227,.055);--calendar-border:rgba(171,204,243,.14);--calendar-current:#f3b37d;min-width:0;padding-bottom:12px}
+#future-self .rg-task-calendar-meta{display:flex;align-items:center;justify-content:space-between;color:var(--calendar-muted);font-size:11px;letter-spacing:.4px;margin-bottom:5px}
+#future-self .rg-task-calendar-meta>button{display:grid;place-items:center;min-height:36px;width:36px;background:transparent;border-radius:50%;color:var(--calendar-muted)}
+#future-self .rg-task-calendar-meta>button:hover{background:var(--calendar-surface)}
+#future-self .rg-task-category-filter{display:flex;align-items:center;gap:8px;margin:0 0 18px;min-width:0}
+#future-self .rg-task-category-filter select{flex:1;min-width:0;max-width:100%;min-height:40px;border-radius:13px;border:1px solid var(--calendar-border);background:var(--fs-panel,#162337);color:var(--fs-text,#ecf2ff);font-size:11px;font-weight:500;padding:9px 26px 9px 11px;text-overflow:ellipsis}
+#future-self .rg-task-category-filter>button{display:inline-flex;align-items:center;justify-content:center;gap:4px;flex-shrink:0;min-height:40px;padding:9px 7px;border-radius:12px;background:transparent;color:var(--calendar-current);font-size:10px}
+#future-self .rg-task-category-filter>button svg{width:13px;height:13px}
+#future-self .rg-task-category-filter>button:hover{background:var(--calendar-surface)}
+#future-self .rg-task-period-heading{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:8px;align-items:center}
+#future-self .rg-task-period-heading h2{text-align:center;font-size:17px;font-weight:800;line-height:1.45;letter-spacing:-.4px;text-transform:lowercase}
+#future-self .rg-task-period-heading>button{background:var(--calendar-surface);border:1px solid var(--calendar-border);height:42px;width:38px;border-radius:14px;display:grid;place-items:center}
+#future-self .rg-task-period-heading>button:hover{border-color:#90baf5}
+#future-self .rg-task-today-row{display:flex;justify-content:center;margin:8px 0 13px}
+#future-self .rg-task-today-row>button{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:5px 12px;font-size:10px;background:transparent;border-radius:20px;color:var(--calendar-current)}
+#future-self .rg-task-today-row>button svg{width:12px;height:12px}
+#future-self .rg-task-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-bottom:26px}
+#future-self .rg-task-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:9px 0;background:var(--calendar-surface);border:1px solid transparent;border-radius:16px;min-width:0;min-height:79px;color:var(--fs-text,#ecf2ff);position:relative;transition:background .2s,border-color .2s,transform .2s}
+#future-self .rg-task-day:hover{background:rgba(124,179,244,.13);border-color:var(--calendar-border)}
+#future-self .rg-task-day small{font-size:9px;color:var(--calendar-muted)}
+#future-self .rg-task-day strong{font-size:15px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums}
+#future-self .rg-task-day.is-today:not(.is-selected){border-color:#a7c8f766}
+#future-self .rg-task-day.is-selected{background:linear-gradient(155deg,#7fafe244,#5b8cd129);border-color:#99c0f3;box-shadow:0 5px 18px #497ac915}
+#future-self .rg-task-day.is-selected small{color:#c1d8f5}
+#future-self .rg-task-day-count{font-size:9px;line-height:1;min-height:10px;color:#acb9ca;font-variant-numeric:tabular-nums}
+#future-self .rg-task-day-count[aria-hidden=true]{color:transparent}
+#future-self .rg-task-day-count.has-pending{color:var(--calendar-current);font-weight:800}
+#future-self .rg-task-month{padding:11px 6px 10px;background:var(--calendar-surface);border:1px solid var(--calendar-border);border-radius:21px;margin:0 0 22px}
+#future-self .rg-task-weekday-head,#future-self .rg-task-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+#future-self .rg-task-weekday-head{text-align:center;font-size:9px;color:var(--calendar-muted);padding:4px 0 11px}
+#future-self .rg-task-month-grid .rg-task-day{background:transparent;border-radius:11px;min-height:49px;gap:5px;padding:6px 0}
+#future-self .rg-task-month-grid .rg-task-day strong{font-size:12px}
+#future-self .rg-task-month-grid .rg-task-day.is-selected{background:linear-gradient(155deg,#7fafe244,#5b8cd129)}
+#future-self .rg-task-month-grid .rg-task-day.is-outside{opacity:.37}
+#future-self .rg-task-calendar-key{display:flex;align-items:center;justify-content:center;gap:6px;font-size:8px;color:var(--calendar-muted);margin-top:13px;padding:0 2px}
+#future-self .rg-task-calendar-key>span{height:4px;width:4px;border-radius:50%;background:var(--calendar-current)}
+#future-self .rg-task-selected-heading{align-items:center;margin-top:8px;margin-bottom:13px}
+#future-self .rg-task-selected-heading h2{font-size:17px}
+#future-self .rg-task-selected-heading .fs-count{font-size:10px;white-space:nowrap}
+#future-self .rg-task-empty{text-align:center;padding:30px 14px;background:var(--calendar-surface)}
+#future-self .rg-task-empty>svg{color:#a7c8f7;margin:0 0 12px}
+#future-self .rg-task-empty h3{font-size:14px;margin-bottom:7px}
+#future-self .rg-task-empty p{font-size:11px;color:var(--calendar-muted);margin-bottom:16px}
+#future-self .rg-task-empty .fs-secondary{font-size:12px}
+#future-self .rg-task-view-settings .fs-small-print{margin-top:9px}
+#future-self[data-theme=light] .rg-task-calendar{--calendar-muted:#526378;--calendar-surface:rgba(94,140,190,.07);--calendar-border:rgba(75,111,157,.22);--calendar-current:#a85416}
+#future-self[data-theme=light] .rg-task-day.is-selected{background:linear-gradient(155deg,#bed9f8,#dbe9fb);border-color:#5f8fc7;color:#213c5d}
+#future-self[data-theme=light] .rg-task-day.is-selected small{color:#344f72}
+#future-self[data-theme=light] .rg-task-month-grid .rg-task-day.is-selected{background:linear-gradient(155deg,#bed9f8,#dbe9fb)}
+#future-self[data-theme=light] .rg-task-day-count{color:#607187}
+#future-self[data-theme=light] .rg-task-day-count.has-pending{color:#a85416}
+#future-self[data-theme=light] .rg-task-day-count[aria-hidden=true]{color:transparent}
+@media(max-width:350px){#future-self .rg-task-period-heading{gap:5px;grid-template-columns:34px minmax(0,1fr) 34px}#future-self .rg-task-period-heading>button{width:34px}#future-self .rg-task-period-heading h2{font-size:14px}#future-self .rg-task-week{gap:3px}#future-self .rg-task-day{border-radius:12px;min-height:74px}#future-self .rg-task-day strong{font-size:14px}#future-self .rg-task-month{padding-left:4px;padding-right:4px}#future-self .rg-task-month-grid{gap:2px}}
+@media(prefers-reduced-motion:reduce){#future-self .rg-task-day{transition:none}}

@@ -1,0 +1,13 @@
+#future-self .rg-language-settings{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;margin-bottom:16px;border:1px solid #8faccc36;border-radius:20px;background:#b6d5ef08}
+#future-self .rg-language-settings h2{font-size:14px;margin:0;font-weight:800;color:var(--fs-text,#e8f1fa)}
+#future-self .rg-language-settings>div{display:flex;gap:6px}
+#future-self .rg-language-settings button{display:flex;align-items:center;gap:7px;min-height:44px;padding:8px 11px;border:1px solid transparent;border-radius:13px;background:transparent;color:#a5bdd1;font-size:11px;font-weight:800;transition:background .18s,border-color .18s}
+#future-self .rg-language-settings button[aria-pressed=true]{background:#9bc5e923;border-color:#98bfd888;color:#eff7ff}
+#future-self .rg-language-settings button:hover{background:#9bc5e915}
+#future-self .rg-language-settings button:focus-visible{outline:2px solid #f0c490;outline-offset:3px}
+#future-self .rg-language-flag{width:24px;height:16px;display:block;border-radius:3px;box-shadow:0 0 0 1px #c1d4e22a;overflow:hidden}
+#future-self[data-theme=light] .rg-language-settings{background:#f6fbff;border-color:#c4d6e4}
+#future-self[data-theme=light] .rg-language-settings h2{color:#264960}
+#future-self[data-theme=light] .rg-language-settings button{color:#56768e}
+#future-self[data-theme=light] .rg-language-settings button[aria-pressed=true]{color:#244963;background:#dcecf8;border-color:#91b4cb}
+@media(prefers-reduced-motion:reduce){#future-self .rg-language-settings button{transition:none}}

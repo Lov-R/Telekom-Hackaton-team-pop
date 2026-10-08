@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Ghost as GhostIcon, Loader2, SendHorizonal, Trash2 } from 'lucide-react';
+import { Loader2, SendHorizonal, Trash2 } from 'lucide-react';
+import { FigureHead } from '@/components/brand/Brand';
 import { ErrorState } from '@/components/common/States';
 import { MessageBubble } from '@/components/chat/MessageBubble';
 import { TaskItem } from '@/components/tasks/TaskItem';
@@ -51,10 +52,11 @@ export default function Chat() {
   return (
     <div className="flex min-h-[calc(100dvh-4rem-max(env(safe-area-inset-bottom),var(--host-badge)))] flex-col pt-4 md:min-h-[calc(100dvh-4rem-var(--host-badge))] md:pt-0">
       <header className="mb-4 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Asistent</h1>
-            <p className="text-sm text-muted-foreground">Tvoj duh iz budućnosti</p>
+        <div className="flex min-w-0 items-center gap-3">
+          <FigureHead className="size-12 border-2" />
+          <div className="min-w-0">
+            <h1 className="truncate text-lg">Your future self assistant</h1>
+            <p className="text-sm text-muted-foreground">Odgovaram iz tvojih dokumenata.</p>
           </div>
         </div>
         {messages.length > 0 && (
@@ -75,11 +77,9 @@ export default function Chat() {
         {isError && <ErrorState message={error.message} onRetry={() => void refetch()} />}
         {data && messages.length === 0 && !pending && (
           <div className="mt-6 flex flex-col items-center gap-4 text-center">
-            <div className="flex size-14 items-center justify-center rounded-lg border bg-card text-primary">
-              <GhostIcon className="size-7" />
-            </div>
+            <FigureHead className="size-20 border-2" />
             <div>
-              <p className="text-lg font-semibold">Kako ti mogu pomoći?</p>
+              <p className="text-lg font-extrabold">Kako ti mogu pomoći?</p>
               <p className="text-sm text-muted-foreground">Zapisujem obaveze i odgovaram iz tvojih dokumenata.</p>
             </div>
             <div className="flex flex-wrap justify-center gap-2">
@@ -88,7 +88,7 @@ export default function Chat() {
                   key={s}
                   type="button"
                   onClick={() => ask(s)}
-                  className="rounded-md border bg-card px-3 py-2 text-sm text-foreground transition-colors hover:border-primary/40"
+                  className="rounded-full border bg-card px-3.5 py-2 text-sm text-foreground transition-colors hover:border-primary/40"
                 >
                   {s}
                 </button>
@@ -105,7 +105,7 @@ export default function Chat() {
               message={{ id: 'pending', role: 'user', content: pending, citations: [], createdAt: '' }}
             />
             <div className="flex items-center gap-2 pl-10 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" /> Duh razmišlja...
+              <Loader2 className="size-4 animate-spin" /> Budući ti razmišlja...
             </div>
           </>
         )}
@@ -124,7 +124,7 @@ export default function Chat() {
 
       <form
         onSubmit={onSubmit}
-        className="sticky bottom-[calc(4rem+max(env(safe-area-inset-bottom),var(--host-badge)))] -mx-4 flex gap-2 border-t bg-background px-4 py-3 md:bottom-[var(--host-badge)] md:mx-0 md:rounded-lg md:border md:px-3"
+        className="sticky bottom-[calc(4rem+max(env(safe-area-inset-bottom),var(--host-badge)))] -mx-4 flex gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur md:bottom-[var(--host-badge)] md:mx-0 md:rounded-2xl md:border md:px-3"
       >
         <Input
           value={text}
@@ -132,9 +132,9 @@ export default function Chat() {
           placeholder="Pitaj ili reci što da zapišem..."
           maxLength={2000}
           aria-label="Poruka"
-          className="h-11"
+          className="h-11 rounded-xl bg-card"
         />
-        <Button type="submit" size="icon" className="size-11 shrink-0" disabled={!text.trim() || send.isPending} aria-label="Pošalji">
+        <Button type="submit" variant="warm" size="icon" className="size-11 shrink-0 rounded-xl" disabled={!text.trim() || send.isPending} aria-label="Pošalji">
           <SendHorizonal />
         </Button>
       </form>

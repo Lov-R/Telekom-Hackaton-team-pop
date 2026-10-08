@@ -1,0 +1,13 @@
+import {t} from './i18n.js';
+export const HP_MILESTONES=[
+ {id:'hp-aura',hp:25,title:'Prva iskra',titleEn:'First spark',detail:'Topla aura koja te prati.',detailEn:'A warm aura to follow you.',icon:'sparkles',art:'aura'},
+ {id:'hp-trail',hp:50,title:'Zvjezdani trag',titleEn:'Starlight trail',detail:'Svaki korak ostavlja svjetlo.',detailEn:'Leave a little light with every step.',icon:'route',art:'trail'},
+ {id:'hp-halo',hp:75,title:'Tvoj puni sjaj',titleEn:'Your full glow',detail:'Srebrni halo za tvoj avatar.',detailEn:'A silver halo for your avatar.',icon:'orbit',art:'halo'},
+ {id:'hp-map',hp:100,title:'Nebeska staza',titleEn:'Celestial path',detail:'Otključaj još jedan svijet.',detailEn:'Unlock another world.',icon:'mountain-snow',art:'world'}
+];
+
+export function createHPMilestones({root,getState,persist,render,notify,icon,signal}) {
+ function view(){const s=getState(),peak=s.peakHP??s.hp,next=HP_MILESTONES.find(r=>peak<r.hp);return `<section class="rg-milestones"><div class="rg-milestone-heading"><span>${t('SVAKI KORAK DONOSI NEŠTO','EVERY STEP BRINGS SOMETHING')}</span><h2>${t('Malo truda.<br>Više čarolije.','A little effort.<br>A little more magic.')}</h2><p>${next?t('Sljedeća nagrada na {hp} HP.','Your next reward at {hp} HP.',{hp:next.hp}):t('Sve HP prekretnice su tvoje.','Every HP milestone is yours.')}</p></div><div class="rg-milestone-grid">${HP_MILESTONES.map(r=>{const owned=s.claimed.includes(r.id),ready=peak>=r.hp;return `<article class="rg-milestone-card ${owned?'is-owned':ready?'is-ready':''}"><div class="rg-milestone-art is-${r.art}" aria-hidden="true"><i></i>${icon(r.icon)}</div><span class="rg-milestone-value">${r.hp} HP</span><h3>${t(r.title,r.titleEn)}</h3><p>${t(r.detail,r.detailEn)}</p><button type="button" data-hp-claim="${r.id}" ${owned||!ready?'disabled':''}>${owned?t('Tvoje zauvijek','Yours forever'):ready?t('Preuzmi','Claim'):t('Otključava se','Locked')}</button></article>`;}).join('')}</div><p class="rg-milestone-note">${t('Osvojene nagrade ostaju tvoje, čak i kad HP padne.','Earned rewards stay yours, even when your HP drops.')}</p></section><h2 class="rg-xp-rewards-title">${t('Još za tvoj XP','More for your XP')}</h2>`;}
+ root.addEventListener('click',e=>{const b=e.target.closest('[data-hp-claim]');if(!b||b.disabled)return;const r=HP_MILESTONES.find(r=>r.id===b.dataset.hpClaim),s=getState();if(!r||(s.peakHP??s.hp)<r.hp||s.claimed.includes(r.id))return;s.claimed.push(r.id);if(r.id==='hp-map')s.mapTheme='starlight';persist();render();notify(t('{reward} je tvoja! Pogledaj svoju mapu.','{reward} is yours! Take a look at your map.',{reward:t(r.title,r.titleEn)}));},{signal});
+ return {view};
+}

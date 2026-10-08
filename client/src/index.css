@@ -3,38 +3,78 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* SRS §11: calm like Apple's Wallet and Health apps, dark by default. Dark grey ground, magenta for action and HP,
-   silver for aura and secondary text; gold is reserved for the Legenda phase. */
+/* Montserrat (SIL OFL, public/ux/montserrat-OFL.txt), subset to Latin + Latin Extended-A for HR. */
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/ux/montserrat.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* relAI-UX 0.11 (relAI-UX/BRAND-UX.md): mystic night blue with silver light; warm peach marks the one main action.
+   Dark is the default; html.light switches to the silver-blue light theme. The pre-UX design is git tag design-v1. */
 :root {
   color-scheme: dark;
-  --radius: 0.875rem;
-  --background: #1c1c1e;
-  --foreground: #f2f2f7;
-  --card: #2c2c2e;
-  --card-foreground: #f2f2f7;
-  --popover: #2c2c2e;
-  --popover-foreground: #f2f2f7;
-  --primary: #e0218a; /* magenta: action + HP */
-  --primary-foreground: #ffffff;
-  --secondary: #3a3a3c;
-  --secondary-foreground: #f2f2f7;
-  --muted: #2c2c2e;
-  --muted-foreground: #c7c7cc; /* silver */
-  --accent: #3a3a3c;
+  --radius: 1rem;
+  --background: #0b1420;
+  --foreground: #eef3f9;
+  --card: #111b27;
+  --card-foreground: #eef3f9;
+  --popover: #142030;
+  --popover-foreground: #eef3f9;
+  --primary: #8ebef4; /* blue light: selection, progress, HP */
+  --primary-foreground: #0b1420;
+  --secondary: #1b2736;
+  --secondary-foreground: #dce6f3;
+  --muted: #142030;
+  --muted-foreground: #a9bbd0; /* silver */
+  --accent: #1f2d3f;
   --accent-foreground: #ffffff;
-  --destructive: #ff453a;
-  --border: #3a3a3c;
-  --input: #48484a;
-  --ring: #e0218a;
-  --success: #30d158;
-  --warning: #ffd60a;
-  --gold: #ffc83c;
-  --sidebar: #161618;
+  --destructive: #ff7b72;
+  --border: #243446;
+  --input: #2b3d52;
+  --ring: #8ebef4;
+  --success: #7fd6a4;
+  --warning: #f3b37d;
+  --gold: #ffd9b5;
+  --warm: #f3b37d; /* the one primary action per screen */
+  --warm-foreground: #2b1708;
+  --sidebar: #08101a;
+  --glow: #c1dcf7;
+}
+:root.light {
+  color-scheme: light;
+  --background: #f6f8fa;
+  --foreground: #243e59;
+  --card: #ffffff;
+  --card-foreground: #243e59;
+  --popover: #ffffff;
+  --popover-foreground: #243e59;
+  --primary: #2f6db3;
+  --primary-foreground: #ffffff;
+  --secondary: #e9eff5;
+  --secondary-foreground: #243e59;
+  --muted: #eef2f6;
+  --muted-foreground: #5d7690;
+  --accent: #e3ebf3;
+  --accent-foreground: #243e59;
+  --destructive: #c4372c;
+  --border: #d6e0ea;
+  --input: #c9d6e3;
+  --ring: #2f6db3;
+  --success: #2f8a57;
+  --warning: #bd7438;
+  --gold: #bd7438;
+  --warm: #f3b37d;
+  --warm-foreground: #3d230f;
+  --sidebar: #edf2f7;
+  --glow: #9cc3ec;
 }
 
 @theme inline {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* Numbers use Montserrat too (with tabular-nums where they line up), as in relAI-UX. */
+  --font-mono: 'Montserrat', ui-monospace, monospace;
   --radius-sm: calc(var(--radius) - 6px);
   --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
@@ -62,6 +102,9 @@
   --color-warning: var(--warning);
   --color-sidebar: var(--sidebar);
   --color-gold: var(--gold);
+  --color-warm: var(--warm);
+  --color-warm-foreground: var(--warm-foreground);
+  --color-glow: var(--glow);
 }
 
 @layer base {
@@ -73,13 +116,15 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    font-weight: 500;
     overscroll-behavior-y: none;
   }
   h1,
   h2,
   h3 {
     text-wrap: balance;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
+    font-weight: 800;
   }
   :focus-visible {
     outline: 2px solid var(--ring);
@@ -131,10 +176,73 @@
 /* Small uppercase label used for section eyebrows and metadata. */
 .label-caps {
   font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+
+/* Two-line screen title: the second line is lighter ("Sve tvoje. / Na svom mjestu."). */
+.hero-title {
+  font-size: 1.75rem;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.hero-title > span {
+  display: block;
+  color: color-mix(in oklab, var(--primary) 70%, var(--muted-foreground));
+}
+
+/* Soap bubble: transparent body, blue-silver rim, warm pearl highlight (documents, welcome transition). */
+.soap-bubble {
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.35) 0 6%, transparent 14%),
+    radial-gradient(circle at 72% 80%, rgb(255 217 181 / 0.22) 0 8%, transparent 22%),
+    radial-gradient(circle at 50% 50%, transparent 58%, rgb(142 190 244 / 0.16) 70%, rgb(220 230 243 / 0.32) 100%),
+    rgb(142 190 244 / 0.05);
+  border: 1px solid rgb(193 220 247 / 0.38);
+  box-shadow:
+    inset 0 0 22px rgb(193 220 247 / 0.16),
+    inset -6px -10px 24px rgb(255 217 181 / 0.08),
+    0 10px 30px rgb(0 0 0 / 0.25);
+  backdrop-filter: blur(2px);
+}
+:root.light .soap-bubble {
+  background:
+    radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.9) 0 6%, transparent 14%),
+    radial-gradient(circle at 72% 80%, rgb(243 179 125 / 0.2) 0 8%, transparent 22%),
+    radial-gradient(circle at 50% 50%, transparent 58%, rgb(47 109 179 / 0.1) 70%, rgb(47 109 179 / 0.22) 100%),
+    rgb(255 255 255 / 0.55);
+  border-color: rgb(47 109 179 / 0.28);
+  box-shadow: inset 0 0 22px rgb(47 109 179 / 0.08), 0 10px 26px rgb(36 62 89 / 0.12);
+}
+@keyframes bubble-pop-in {
+  0% { opacity: 0; transform: scale(0.4); }
+  70% { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-bubble-in {
+  animation: bubble-pop-in 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes bubble-rise {
+  0% { opacity: 0; transform: translateY(0) scale(0.3); }
+  25% { opacity: 1; transform: translateY(-10px) scale(1); }
+  80% { opacity: 0.9; transform: translateY(-60px) scale(1.04); }
+  100% { opacity: 0; transform: translateY(-80px) scale(1.4); }
+}
+@keyframes intro-logo {
+  from { opacity: 0; transform: scale(0.82); letter-spacing: 0.04em; }
+  to { opacity: 1; transform: scale(1); letter-spacing: 0; }
+}
+@keyframes intro-fingers {
+  from { opacity: 0.9; transform: scale(1.08); }
+  to { opacity: 0.45; transform: scale(1); }
+}
+@keyframes aura-pulse {
+  0%, 100% { opacity: 0.55; transform: scaleX(1); }
+  50% { opacity: 1; transform: scaleX(1.12); }
 }
 
 @media (prefers-reduced-motion: reduce) {

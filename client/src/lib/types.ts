@@ -23,6 +23,7 @@ export interface DocumentItem {
   documentDate: string | null;
   expiryDate: string | null;
   status: DocStatus;
+  mimeType: string | null;
   createdAt: string;
   sizeBytes: number | null;
 }

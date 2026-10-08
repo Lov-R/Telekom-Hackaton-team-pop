@@ -18,6 +18,8 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // relAI-UX: the one main action on a screen (peach, raised).
+        warm: "bg-warm font-bold text-warm-foreground shadow-[0_3px_0_rgb(120_70_30/0.45)] hover:brightness-105 active:translate-y-px active:shadow-[0_1px_0_rgb(120_70_30/0.45)]",
       },
       size: {
         default: "h-10 px-4 py-2 has-[>svg]:px-3",

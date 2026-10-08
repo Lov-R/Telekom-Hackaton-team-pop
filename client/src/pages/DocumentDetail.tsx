@@ -123,12 +123,16 @@ export default function DocumentDetail() {
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_minmax(0,26rem)]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <div className="space-y-4">
           <Card className="gap-4 p-4">
             <div className="flex flex-wrap items-center gap-2">
               <ProcessingBadge status={processDoc.isPending ? 'processing' : doc.status} />
-              {doc.docType && <Badge variant="secondary">{doc.docType}</Badge>}
+              {doc.docType && (
+                <Badge variant="secondary" className="max-w-full shrink truncate">
+                  {doc.docType}
+                </Badge>
+              )}
               <span className="text-xs text-muted-foreground">
                 {formatDate(doc.createdAt.slice(0, 10))}
                 {doc.sizeBytes ? ` · ${formatBytes(doc.sizeBytes)}` : ''}
@@ -282,7 +286,7 @@ export default function DocumentDetail() {
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2 p-0">
                     {doc.people.map((p, i) => (
-                      <Badge key={`${p.name}-${i}`} variant="secondary" className="gap-1.5 py-1 text-sm">
+                      <Badge key={`${p.name}-${i}`} variant="secondary" className="h-auto max-w-full shrink gap-1.5 py-1 text-left text-sm whitespace-normal">
                         <span className="font-semibold">{p.name}</span>
                         {p.role && <span className="text-muted-foreground">· {p.role}</span>}
                       </Badge>

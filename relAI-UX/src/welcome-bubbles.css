@@ -1,0 +1,56 @@
+/* The map remains visible and usable beneath a brief soap-bubble welcome. */
+#future-self .rg-welcome-bubbles{
+ position:fixed;inset:0 auto 0 50%;width:min(440px,100vw);height:100%;
+ transform:translateX(-50%);z-index:500;pointer-events:none;
+ overflow:hidden;contain:layout paint;isolation:isolate;
+}
+#future-self:not([data-current-view=map]) .rg-welcome-bubbles{display:none}
+#future-self .rg-welcome-bubble{
+ position:absolute;left:var(--bubble-x);top:var(--bubble-y);
+ width:var(--bubble-size);height:var(--bubble-size);margin:calc(var(--bubble-size) / -2);
+ opacity:0;animation:rg-welcome-rise var(--bubble-time) var(--bubble-delay) both;
+ will-change:transform,opacity;
+}
+#future-self .rg-welcome-bubble-skin{
+ display:block;position:absolute;inset:0;border-radius:50%;
+ border:1px solid #deefffa8;
+ background:radial-gradient(ellipse at 26% 20%,#fff9 0%,#eefaff30 12%,transparent 33%),radial-gradient(ellipse at 77% 80%,#ffc5865c,transparent 39%),radial-gradient(ellipse at 70% 25%,#c7d8ff35,transparent 49%),radial-gradient(circle at 48% 45%,#9dceef07 40%,#a3d5f738 68%,#e4f6ffa8 74%,#9fbedd21 80%);
+ box-shadow:inset 2px 3px 7px #f4fbff5e,inset -3px -4px 9px #adcce859,0 2px 15px #bddfff1a;
+ animation:rg-welcome-inflate var(--bubble-time) var(--bubble-delay) both;
+}
+#future-self .rg-welcome-bubble-skin::before{
+ content:'';position:absolute;left:16%;top:10%;width:36%;height:18%;
+ border-top:3px solid #f1fbffdc;border-radius:50%;transform:rotate(-34deg);
+ box-shadow:0 -2px 5px #e9f7ff35;
+}
+#future-self .rg-welcome-bubble-skin::after{
+ content:'';position:absolute;right:13%;bottom:10%;width:35%;height:21%;
+ border-bottom:2px solid #ffe5c49c;border-radius:50%;transform:rotate(-32deg);
+}
+#future-self .rg-welcome-bubble::after{
+ content:'';position:absolute;inset:0;border:1px solid #e3f4ff99;border-radius:50%;
+ animation:rg-welcome-pop var(--bubble-time) var(--bubble-delay) both;
+}
+#future-self[data-theme=light] .rg-welcome-bubble-skin{
+ border-color:#729eb3aa;box-shadow:inset 2px 3px 8px #fff9,inset -3px -4px 10px #608fac55,0 2px 15px #476e9222;
+}
+@keyframes rg-welcome-rise{
+ 0%{opacity:0;transform:translate3d(0,36px,0) rotate(0)}
+ 12%{opacity:1}
+ 78%{opacity:1}
+ 100%{opacity:0;transform:translate3d(var(--bubble-drift),-64px,0) rotate(var(--bubble-tilt))}
+}
+@keyframes rg-welcome-inflate{
+ 0%{transform:scale(.04);opacity:0}
+ 24%{transform:scale(1.08);opacity:1}
+ 36%{transform:scale(.96)}
+ 66%{transform:scale(1);opacity:1}
+ 82%{transform:scale(1.13);opacity:.9}
+ 96%,100%{transform:scale(1.28);opacity:0}
+}
+@keyframes rg-welcome-pop{
+ 0%,76%{opacity:0;transform:scale(.94)}
+ 82%{opacity:.65;transform:scale(1.12)}
+ 100%{opacity:0;transform:scale(1.55)}
+}
+@media(prefers-reduced-motion:reduce){#future-self .rg-welcome-bubbles{display:none}}
