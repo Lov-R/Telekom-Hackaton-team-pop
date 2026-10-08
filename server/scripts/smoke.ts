@@ -87,7 +87,7 @@ async function main(): Promise<void> {
   const form = new FormData();
   form.append('file', new Blob([Buffer.from(bytes)], { type: 'application/pdf' }), 'ugovor-festival.pdf');
   const up = await api<{ id: string; status: string }>('/documents', { method: 'POST', body: form });
-  check('(c) upload returns 202 processing', up.status === 202 && up.body.status === 'processing');
+  check('(c) upload returns 201, unread', up.status === 201 && up.body.status === 'pending');
   const id = up.body.id;
 
   const again = new FormData();
@@ -95,13 +95,9 @@ async function main(): Promise<void> {
   const dup = await api<unknown>('/documents', { method: 'POST', body: again });
   check('(c) same file twice is rejected', dup.status === 409);
 
-  let doc: Doc | undefined;
+  // Documents are read when opened.
   const t0 = Date.now();
-  while (Date.now() - t0 < 90_000) {
-    doc = (await api<Doc>(`/documents/${id}`)).body;
-    if (doc.status !== 'processing') break;
-    await new Promise((r) => setTimeout(r, 2000));
-  }
+  const doc = (await api<Doc>(`/documents/${id}/process`, { method: 'POST' })).body as Doc | undefined;
   check('(d) processing finished', doc?.status === 'ready', `status=${doc?.status} in ${Math.round((Date.now() - t0) / 1000)}s ${doc?.error ?? ''}`);
   if (!doc || doc.status !== 'ready') throw new Error('Dokument nije obrađen.');
 

@@ -33,7 +33,9 @@ export function UploadButtons() {
       toast.error('PDF je prevelik (najviše 4 MB).');
       return;
     }
-    upload.mutate(toSend, { onSuccess: () => toast('Čitam dokument...', { description: 'Za par sekundi bit će u svojoj mapi.' }) });
+    upload.mutate(toSend, {
+      onSuccess: () => toast('Dokument je spremljen', { description: 'Sažetak i rokove pročitam kad ga otvoriš.' }),
+    });
   };
 
   return (

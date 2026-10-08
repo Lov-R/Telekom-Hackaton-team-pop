@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   CalendarDays,
   ClipboardList,
@@ -37,7 +37,7 @@ import {
   useDeleteDocument,
   useDocument,
   usePatchDocument,
-  useReprocessDocument,
+  useProcessDocument,
 } from '@/hooks/queries';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { fileUrl } from '@/lib/api';
@@ -50,7 +50,7 @@ export default function DocumentDetail() {
   const navigate = useNavigate();
   const { data: doc, isLoading, isError, error, refetch } = useDocument(id);
   const patch = usePatchDocument(id);
-  const reprocess = useReprocessDocument(id);
+  const processDoc = useProcessDocument(id);
   const del = useDeleteDocument();
   const desktop = useMediaQuery('(min-width: 1024px)');
   const [title, setTitle] = useState('');
@@ -61,6 +61,15 @@ export default function DocumentDetail() {
   useEffect(() => {
     if (docTitle !== undefined) setTitle(docTitle);
   }, [docTitle]);
+
+  // Documents are read by the AI when first opened; a failed attempt is retried only by the button.
+  const attempted = useRef<string | null>(null);
+  const docStatus = doc?.status;
+  useEffect(() => {
+    if (docStatus !== 'pending' || attempted.current === id) return;
+    attempted.current = id;
+    processDoc.mutate(false);
+  }, [docStatus, id, processDoc]);
 
   const docSub = doc?.subcategory;
   useEffect(() => {
@@ -118,7 +127,7 @@ export default function DocumentDetail() {
         <div className="space-y-4">
           <Card className="gap-4 p-4">
             <div className="flex flex-wrap items-center gap-2">
-              <ProcessingBadge status={doc.status} />
+              <ProcessingBadge status={processDoc.isPending ? 'processing' : doc.status} />
               {doc.docType && <Badge variant="secondary">{doc.docType}</Badge>}
               <span className="text-xs text-muted-foreground">
                 {formatDate(doc.createdAt.slice(0, 10))}
@@ -176,7 +185,7 @@ export default function DocumentDetail() {
             </div>
           </Card>
 
-          {doc.status === 'processing' && (
+          {(doc.status === 'processing' || processDoc.isPending) && (
             <Card className="items-center gap-3 p-6 text-center">
               <Loader2 className="size-8 animate-spin text-primary" />
               <p className="font-semibold">Čitam dokument...</p>
@@ -186,15 +195,14 @@ export default function DocumentDetail() {
             </Card>
           )}
 
-          {doc.status === 'error' && (
-            <Card className="gap-3 border-destructive/30 p-5">
-              <p className="font-semibold text-destructive">Obrada nije uspjela</p>
-              <p className="text-sm text-muted-foreground">{doc.error ?? 'Došlo je do nepoznate greške.'}</p>
+          {doc.status === 'pending' && !processDoc.isPending && attempted.current === id && (
+            <Card className="gap-3 p-5">
+              <p className="font-semibold">Dokument još nije pročitan</p>
+              <p className="text-sm text-muted-foreground">
+                {processDoc.error?.message ?? doc.error ?? 'Čitanje nije uspjelo.'}
+              </p>
               <div>
-                <Button
-                  onClick={() => reprocess.mutate(undefined, { onSuccess: () => toast.info('Ponovna obrada je pokrenuta.') })}
-                  disabled={reprocess.isPending}
-                >
+                <Button onClick={() => processDoc.mutate(false)}>
                   <RefreshCw /> Pokušaj ponovno
                 </Button>
               </div>
@@ -302,8 +310,8 @@ export default function DocumentDetail() {
             {doc.status === 'ready' && (
               <Button
                 variant="outline"
-                onClick={() => reprocess.mutate(undefined, { onSuccess: () => toast.info('Ponovna obrada je pokrenuta.') })}
-                disabled={reprocess.isPending}
+                onClick={() => processDoc.mutate(true)}
+                disabled={processDoc.isPending}
               >
                 <RefreshCw /> Ponovno obradi
               </Button>

@@ -19,7 +19,6 @@ export default function Scan() {
   const send = (file: File): void => {
     upload.mutate(file, {
       onSuccess: (doc) => {
-        toast('Čitam dokument...');
         setPages([]);
         void navigate(`/dokumenti/${doc.id}`);
       },

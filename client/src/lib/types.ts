@@ -10,7 +10,8 @@ export type CategoryKey =
   | 'bonovi'
   | 'ostalo';
 
-export type DocStatus = 'processing' | 'ready' | 'error';
+/** pending: not read by the AI yet (or the last attempt failed); it is read when opened. */
+export type DocStatus = 'pending' | 'processing' | 'ready';
 
 export interface DocumentItem {
   id: string;

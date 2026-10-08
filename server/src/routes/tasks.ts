@@ -5,9 +5,8 @@ import { db, nowIso } from '../db.js';
 import { GeminiError } from '../ai/gemini.js';
 import { verifyProof } from '../ai/verify.js';
 import { removeStoredFile } from '../services/documents.js';
-import { background, ensureLocalFile } from '../persist.js';
+import { ensureLocalFile } from '../persist.js';
 import { completeTask, gameState, profileRow } from '../services/game.js';
-import { processDocument } from '../services/processDocument.js';
 import { TASK_ORDER, TASK_SELECT, taskById, taskOut, type TaskRow } from '../services/serialize.js';
 import { assertGoal, insertTask, isValidTime, startAt } from '../services/tasks.js';
 import { isValidDate, todayZagreb } from '../util/dates.js';
@@ -192,10 +191,10 @@ tasksRouter.post('/tasks/:id/complete', upload.single('proof'), async (req, res)
   ).run(`Dokaz: ${task.title}`.slice(0, 120), verdict.proof_date, nowIso(), proofDoc.id);
   const result = completeTask(userId, task.id, { documentId: proofDoc.id, reason: verdict.reason });
 
-  // A proof that is itself a new document (e.g. a new medical report) goes to Documents and is read (Tok C, step 5).
+  // A proof that is itself a new document (e.g. a new medical report) goes to Documents (Tok C, step 5),
+  // unread until opened like any other upload.
   if (verdict.is_new_document) {
-    db.prepare("UPDATE documents SET is_proof = 0, status = 'processing' WHERE id = ?").run(proofDoc.id);
-    background(processDocument(proofDoc.id));
+    db.prepare("UPDATE documents SET is_proof = 0, status = 'error', error = NULL WHERE id = ?").run(proofDoc.id);
   }
 
   res.json({

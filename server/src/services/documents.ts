@@ -63,6 +63,12 @@ export function getDocRow(userId: string, id: string): DocRow {
   return row;
 }
 
+/**
+ * Documents are read by the AI only when opened (POST /documents/:id/process). Until then, and after a failed
+ * attempt, the row has status 'error'; the API calls both 'pending' (error, if any, is only shown in the detail).
+ */
+export const apiStatus = (status: string): string => (status === 'error' ? 'pending' : status);
+
 export const listItem = (r: DocRow) => {
   const x = parseExtracted(r.extracted);
   return {
@@ -74,7 +80,7 @@ export const listItem = (r: DocRow) => {
     summary: x.summary ?? null,
     documentDate: r.document_date,
     expiryDate: r.expiry_date,
-    status: r.status,
+    status: apiStatus(r.status),
     createdAt: r.created_at,
     sizeBytes: r.size_bytes,
   };

@@ -168,11 +168,21 @@ export function usePatchDocument(id: string) {
   });
 }
 
-export function useReprocessDocument(id: string) {
+/**
+ * Has the AI read the document now and waits for it (documents are only read when opened). On success, refreshes
+ * everything and announces the task the agent added, with Poništi and Uredi (SRS §5.3).
+ */
+export function useProcessDocument(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => api.post<DocumentItem>(`/documents/${id}/reprocess`),
-    onSuccess: () => void invalidateAll(qc),
+    mutationFn: (force: boolean = false) =>
+      api.post<DocumentDetail>(`/documents/${id}/process${force ? '?force=1' : ''}`),
+    onSuccess: (doc) => {
+      qc.setQueryData(['document', id], doc);
+      void invalidateAll(qc);
+      const added = doc.tasks.find((t) => t.source === 'document' && t.status !== 'done');
+      if (doc.status === 'ready' && added) showAutoTaskToast(added, { documentTitle: doc.title });
+    },
   });
 }
 

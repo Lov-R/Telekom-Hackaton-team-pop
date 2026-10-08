@@ -5,7 +5,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import { db, newId, nowIso, tx } from '../db.js';
 import { MAX_UPLOAD_MB, UPLOAD_DIR } from '../env.js';
-import { background, ensureLocalFile, saveFile } from '../persist.js';
+import { ensureLocalFile, pushDb, saveFile } from '../persist.js';
 import { CATEGORIES, CATEGORY_KEYS, cleanSubcategory } from '../ai/schemas.js';
 import {
   assertNotDuplicate,
@@ -50,7 +50,7 @@ export const upload = multer({
 });
 
 /**
- * Hash-checks and stores an uploaded file as a document row in 'processing' state. Returns the new row.
+ * Hash-checks and stores an uploaded file as an unread document row (status 'error', no message). Returns the new row.
  * The temp file is always consumed (moved or deleted).
  */
 export async function saveUploadedDocument(
@@ -69,7 +69,7 @@ export async function saveUploadedDocument(
     db.prepare(
       `INSERT INTO documents (id, user_id, storage_path, file_hash, mime_type, title, is_proof, status,
          original_name, size_bytes, created_at, updated_at)
-       VALUES (?,?,?,?,?,?,?, 'processing', ?,?,?,?)`,
+       VALUES (?,?,?,?,?,?,?, 'error', ?,?,?,?)`,
     ).run(
       id,
       userId,
@@ -114,8 +114,7 @@ documentsRouter.get('/documents', (req: Request, res) => {
 documentsRouter.post('/documents', upload.single('file'), async (req, res) => {
   if (!req.file) throw new HttpError(400, 'no_file', 'Datoteka nije priložena.');
   const row = await saveUploadedDocument(req.userId, req.file, false);
-  background(processDocument(row.id));
-  res.status(202).json(listItem(row));
+  res.status(201).json(listItem(row));
 });
 
 documentsRouter.get('/categories', (req, res) => {
@@ -186,9 +185,23 @@ documentsRouter.patch('/documents/:id', (req, res) => {
   res.json(documentDetail(req.userId, cur.id));
 });
 
-documentsRouter.post('/documents/:id/reprocess', (req, res) => {
+/** Longer than any single AI call, so a 'processing' row older than this was abandoned (server restart, timeout). */
+const PROCESSING_STALE_MS = 3 * 60_000;
+
+/**
+ * Reads the document with the AI and answers when done (the client calls this when the document is opened).
+ * Already-read documents are returned as they are unless force is set ("Ponovno obradi").
+ */
+documentsRouter.post('/documents/:id/process', async (req, res) => {
+  const force = req.query.force === '1';
   const cur = getDocRow(req.userId, req.params.id);
-  if (cur.status === 'processing') throw new HttpError(409, 'busy', 'Dokument se već obrađuje.');
+  if (cur.status === 'ready' && !force) {
+    res.json(documentDetail(req.userId, cur.id));
+    return;
+  }
+  if (cur.status === 'processing' && Date.now() - new Date(cur.updated_at).getTime() < PROCESSING_STALE_MS) {
+    throw new HttpError(409, 'busy', 'Dokument se već obrađuje.');
+  }
   tx(() => {
     // Completed tasks keep their HP history; only open auto-added ones are regenerated.
     db.prepare("DELETE FROM tasks WHERE document_id = ? AND user_id = ? AND source = 'document' AND status != 'done'").run(
@@ -200,8 +213,10 @@ documentsRouter.post('/documents/:id/reprocess', (req, res) => {
       cur.id,
     );
   });
-  background(processDocument(cur.id));
-  res.status(202).json(listItem(getDocRow(req.userId, cur.id)));
+  // On Netlify processDocument reloads the stored database before writing; store this first so it isn't lost.
+  await pushDb();
+  await processDocument(cur.id);
+  res.json(documentDetail(req.userId, cur.id));
 });
 
 documentsRouter.delete('/documents/:id', (req, res) => {
