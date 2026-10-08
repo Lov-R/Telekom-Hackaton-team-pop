@@ -49,7 +49,7 @@ export default function Chat() {
   const messages: ChatMessage[] = data ?? [];
 
   return (
-    <div className="flex min-h-[calc(100dvh-4rem-env(safe-area-inset-bottom))] flex-col pt-4 md:min-h-[calc(100dvh-4rem)] md:pt-0">
+    <div className="flex min-h-[calc(100dvh-4rem-max(env(safe-area-inset-bottom),var(--host-badge)))] flex-col pt-4 md:min-h-[calc(100dvh-4rem-var(--host-badge))] md:pt-0">
       <header className="mb-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div>
@@ -124,7 +124,7 @@ export default function Chat() {
 
       <form
         onSubmit={onSubmit}
-        className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] -mx-4 flex gap-2 border-t bg-background px-4 py-3 md:bottom-0 md:mx-0 md:rounded-lg md:border md:px-3"
+        className="sticky bottom-[calc(4rem+max(env(safe-area-inset-bottom),var(--host-badge)))] -mx-4 flex gap-2 border-t bg-background px-4 py-3 md:bottom-[var(--host-badge)] md:mx-0 md:rounded-lg md:border md:px-3"
       >
         <Input
           value={text}

@@ -8,6 +8,11 @@ import { queryClient } from '@/lib/queryClient';
 import App from './App';
 import './index.css';
 
+// Netlify adds its badge script to the served HTML; reserve room for the badge only then (see index.css).
+if (document.querySelector('script[src^="/.netlify/scripts/hud"]')) {
+  document.documentElement.dataset.hostBadge = '';
+}
+
 // SRS §7.4: push-only worker without a cache. Registering it also replaces the old caching worker on phones.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

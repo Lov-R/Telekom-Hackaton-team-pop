@@ -147,8 +147,19 @@
   }
 }
 
+/*
+ * Netlify's free plan pins a "Powered by Netlify" badge (~60px with its margin) to the bottom-right corner, above
+ * everything. main.tsx sets data-host-badge when Netlify injected it; bottom-anchored UI keeps clear of that strip.
+ */
+:root {
+  --host-badge: 0px;
+}
+:root[data-host-badge] {
+  --host-badge: 64px;
+}
+/* Bottom inset: the iPhone home indicator or the host badge, whichever is taller. */
 .pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: max(env(safe-area-inset-bottom), var(--host-badge));
 }
 .pt-safe {
   padding-top: env(safe-area-inset-top);

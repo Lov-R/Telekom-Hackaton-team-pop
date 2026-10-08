@@ -16,8 +16,8 @@ export function AppShell() {
       <main
         className={
           chat
-            ? 'mx-auto max-w-3xl px-4 pt-safe md:px-8 md:py-8'
-            : 'mx-auto max-w-5xl px-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-28 md:px-8 md:py-8'
+            ? 'mx-auto max-w-3xl px-4 pt-safe md:px-8 md:pt-8 md:pb-[calc(2rem+var(--host-badge))]'
+            : 'mx-auto max-w-5xl px-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(7rem+var(--host-badge))] md:px-8 md:pt-8 md:pb-[calc(2rem+var(--host-badge))]'
         }
       >
         <div key={pathname} className="animate-fade-up">
