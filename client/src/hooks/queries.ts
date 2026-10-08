@@ -11,6 +11,8 @@ import type {
   CompleteResponse,
   Dashboard,
   FriendsData,
+  Conversation,
+  FriendMessage,
   Friend,
   NotificationsData,
   DocumentDetail,
@@ -443,5 +445,39 @@ export function useMarkNotificationsRead() {
   return useMutation({
     mutationFn: () => api.post<void>('/notifications/read'),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+}
+
+/* ---------- friend chat ---------- */
+
+const CONVERSATION_POLL_MS = 4000;
+
+export function useConversation(friendId: string) {
+  const qc = useQueryClient();
+  return useQuery({
+    queryKey: ['conversation', friendId],
+    queryFn: async () => {
+      const prev = qc.getQueryData<Conversation>(['conversation', friendId]);
+      const c = await api.get<Conversation>(`/friends/${friendId}/messages`);
+      // Opening the conversation marks it read on the server; refresh the badges when something arrived.
+      if (!prev || prev.messages.length !== c.messages.length) {
+        void qc.invalidateQueries({ queryKey: ['notifications'] });
+        void qc.invalidateQueries({ queryKey: ['friends'] });
+      }
+      return c;
+    },
+    refetchInterval: CONVERSATION_POLL_MS,
+  });
+}
+
+export function useSendMessage(friendId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (content: string) => api.post<FriendMessage>(`/friends/${friendId}/messages`, { content }),
+    onSuccess: (msg) => {
+      qc.setQueryData(['conversation', friendId], (old: Conversation | undefined) =>
+        old ? { ...old, messages: [...old.messages, msg] } : old,
+      );
+    },
   });
 }

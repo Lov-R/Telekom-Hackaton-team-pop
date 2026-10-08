@@ -4,14 +4,17 @@ import { profileRow } from '../services/game.js';
 import { taskById } from '../services/serialize.js';
 import {
   addFriendByCode,
+  conversation,
   listFriends,
   listNotifications,
   markNotificationsRead,
   removeFriend,
+  sendMessage,
   shareTask,
 } from '../services/social.js';
 
 const AddZ = z.object({ code: z.string().trim().min(4, 'Upiši kod prijatelja.').max(20) });
+const MessageZ = z.object({ content: z.string().trim().min(1, 'Poruka je prazna.').max(2000) });
 const ShareZ = z.object({ friendIds: z.array(z.string().min(1)).min(1, 'Odaberi barem jednog prijatelja.').max(20) });
 
 export const socialRouter = Router();
@@ -29,6 +32,15 @@ socialRouter.post('/friends', (req, res) => {
 socialRouter.delete('/friends/:id', (req, res) => {
   removeFriend(req.userId, req.params.id);
   res.status(204).end();
+});
+
+socialRouter.get('/friends/:id/messages', (req, res) => {
+  res.json(conversation(req.userId, req.params.id));
+});
+
+socialRouter.post('/friends/:id/messages', (req, res) => {
+  const b = MessageZ.parse(req.body);
+  res.status(201).json(sendMessage(req.userId, req.params.id, b.content));
 });
 
 socialRouter.post('/tasks/:id/share', (req, res) => {

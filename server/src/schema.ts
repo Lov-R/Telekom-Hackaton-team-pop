@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   avatar_config TEXT NOT NULL DEFAULT '{}',
   hp INTEGER NOT NULL DEFAULT 0 CHECK (hp BETWEEN 0 AND 99),
   map_index INTEGER NOT NULL DEFAULT 1 CHECK (map_index >= 1),
+  -- Fields walked on the current map: every completed task is one step (see services/game.ts).
+  map_steps INTEGER NOT NULL DEFAULT 0,
   presence INTEGER NOT NULL DEFAULT 60 CHECK (presence BETWEEN 0 AND 100),
   streak_days INTEGER NOT NULL DEFAULT 0,
   last_completed_date TEXT,
@@ -154,6 +156,16 @@ CREATE TABLE IF NOT EXISTS task_shares (
   created_at TEXT NOT NULL
 );
 
+-- Direct messages between friends (F16 extra). Only readable while the two are friends.
+CREATE TABLE IF NOT EXISTS friend_messages (
+  id TEXT PRIMARY KEY,
+  sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  recipient_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  read_at TEXT
+);
+
 CREATE TABLE IF NOT EXISTS recommendations (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -182,4 +194,6 @@ CREATE INDEX IF NOT EXISTS idx_goals_user ON goals(user_id);
 CREATE INDEX IF NOT EXISTS idx_task_shares_group ON task_shares(group_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_friendships_friend ON friendships(friend_id);
+CREATE INDEX IF NOT EXISTS idx_friend_messages_pair ON friend_messages(sender_id, recipient_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_friend_messages_unread ON friend_messages(recipient_id, read_at);
 `;

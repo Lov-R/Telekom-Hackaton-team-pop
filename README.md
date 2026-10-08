@@ -2,7 +2,7 @@
 
 Mobilna (PWA) aplikacija prema `md files/SRS.md`: papir postaje rok, rok postaje igra. AI (Google Gemini) čita dokumente i sam dodaje obaveze; duh napreduje po mapi kad ih rješavaš.
 
-Odstupanja od SRS-a (dogovoreno): SQLite + Express umjesto Supabasea (prijava emailom i lozinkom, svaki upit filtriran po `user_id` umjesto RLS-a); ciljevi i preporuke zadržani kao dodatak; SRS kategorije uz podkategorije. Prijatelji (F16, prošireno): poziv linkom ili kodom (`/prijatelji?kod=…`), zajednički zadaci (svaki prijatelj dobiva svoju kopiju i svoj HP) i obavijesti unutar aplikacije kad prijatelj riješi zadatak (osvježavanje svakih 30 s, bez novih ključeva u `.env`). Još nije napravljeno: push notifikacije (F17), podsjetnici od duha (F13), rječnik HR/EN za sučelje (jezik se sprema i koristi za AI).
+Odstupanja od SRS-a (dogovoreno): SQLite + Express umjesto Supabasea (prijava emailom i lozinkom, svaki upit filtriran po `user_id` umjesto RLS-a); ciljevi i preporuke zadržani kao dodatak; SRS kategorije uz podkategorije. Prijatelji (F16, prošireno): poziv linkom ili kodom (`/prijatelji?kod=…`), zajednički zadaci (svaki prijatelj dobiva svoju kopiju i svoj HP), chat s prijateljima (`/prijatelji/:id`) i obavijesti unutar aplikacije kad prijatelj riješi zadatak (osvježavanje svakih 30 s, bez novih ključeva u `.env`). Još nije napravljeno: push notifikacije (F17), podsjetnici od duha (F13), rječnik HR/EN za sučelje (jezik se sprema i koristi za AI).
 
 Stack: Vite + React 19 + TypeScript + Tailwind v4 + shadcn/ui (klijent), Express 5 + SQLite (better-sqlite3) (server), Capacitor konfiguracija za iOS.
 

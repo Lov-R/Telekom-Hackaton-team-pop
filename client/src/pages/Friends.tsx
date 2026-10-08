@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Copy, Flame, MoreVertical, Send, UserMinus, UserPlus, Users } from 'lucide-react';
+import { Copy, Flame, MessageCircle, MoreVertical, Send, UserMinus, UserPlus, Users } from 'lucide-react';
+import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { EmptyState, ErrorState, ListSkeleton } from '@/components/common/States';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -106,18 +107,28 @@ export default function Friends() {
             <ul className="space-y-3">
               {data.friends.map((f) => (
                 <li key={f.id} className="flex items-center gap-3 rounded-2xl border bg-card p-3.5">
-                  <FriendAvatar friend={f} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold">{f.displayName}</p>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {f.mapName} · <span className="font-bold text-primary tabular-nums">{f.hp} HP</span>
-                    </p>
-                  </div>
-                  {f.streak > 1 && (
-                    <span className="flex items-center gap-1 text-sm font-bold text-warning tabular-nums" title="Niz dana">
-                      <Flame className="size-4" /> {f.streak}
+                  <Link to={`/prijatelji/${f.id}`} className="flex min-w-0 flex-1 items-center gap-3" aria-label={`Poruke: ${f.displayName}`}>
+                    <FriendAvatar friend={f} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-bold">{f.displayName}</span>
+                      <span className="block truncate text-sm text-muted-foreground">
+                        {f.mapName} · <span className="font-bold text-primary tabular-nums">{f.hp} HP</span>
+                      </span>
                     </span>
-                  )}
+                    {f.streak > 1 && (
+                      <span className="flex items-center gap-1 text-sm font-bold text-warning tabular-nums" title="Niz dana">
+                        <Flame className="size-4" /> {f.streak}
+                      </span>
+                    )}
+                    <span className="relative grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
+                      <MessageCircle className="size-4.5" />
+                      {!!f.unreadMessages && (
+                        <span className="absolute -top-1.5 -right-1.5 min-w-5 rounded-full bg-primary px-1 text-center text-[11px] font-bold text-primary-foreground tabular-nums">
+                          {f.unreadMessages}
+                        </span>
+                      )}
+                    </span>
+                  </Link>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon-sm" aria-label="Više opcija">

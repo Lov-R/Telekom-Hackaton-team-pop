@@ -5,7 +5,7 @@ import { useNotifications } from '@/hooks/queries';
 
 /** relAI-UX "Više": everything that is not Mapa, Zadaci or Avatar. */
 export default function More() {
-  const unread = useNotifications().data?.unread ?? 0;
+  const n = useNotifications().data;
   return (
     <>
       <h1 className="hero-title mb-6">
@@ -26,11 +26,11 @@ export default function More() {
                 <span className="block font-extrabold">{label}</span>
                 <span className="block truncate text-sm text-muted-foreground">{description}</span>
               </span>
-              {to === '/obavijesti' && unread > 0 && (
+              {(to === '/obavijesti' ? n?.unread : to === '/prijatelji' ? n?.unreadMessages : 0) ? (
                 <span className="rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground tabular-nums">
-                  {unread}
+                  {to === '/obavijesti' ? n?.unread : n?.unreadMessages}
                 </span>
-              )}
+              ) : null}
               <ChevronRight className="size-5 text-muted-foreground" />
             </Link>
           </li>

@@ -31,9 +31,20 @@ async function moveLegacyDatabase(): Promise<void> {
   for (const suffix of ['', '-wal', '-shm']) fs.rmSync(`${DB_PATH}${suffix}`, { force: true });
 }
 
+/** Columns added after a database already existed (CREATE TABLE IF NOT EXISTS does not add them). */
+function migrate(conn: Database.Database): void {
+  const cols = conn.prepare('PRAGMA table_info(profiles)').all() as { name: string }[];
+  if (!cols.some((c) => c.name === 'map_steps')) {
+    conn.exec('ALTER TABLE profiles ADD COLUMN map_steps INTEGER NOT NULL DEFAULT 0');
+    // Keep everyone where they stood: the position used to be one field per 10 HP.
+    conn.exec('UPDATE profiles SET map_steps = MIN(hp / 10, 9)');
+  }
+}
+
 function prepare(conn: Database.Database): Database.Database {
   conn.pragma('foreign_keys = ON');
   conn.exec(SCHEMA_SQL);
+  migrate(conn);
   return conn;
 }
 

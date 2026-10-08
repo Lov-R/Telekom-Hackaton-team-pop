@@ -48,6 +48,7 @@ export interface ProfileRow {
   avatar_config: string;
   hp: number;
   map_index: number;
+  map_steps: number;
   presence: number;
   streak_days: number;
   last_completed_date: string | null;
@@ -106,7 +107,10 @@ function addHp(
     hp -= 100;
     mapsUnlocked++;
   }
-  db.prepare('UPDATE profiles SET hp = ?, map_index = map_index + ? WHERE id = ?').run(hp, mapsUnlocked, userId);
+  // A new map starts the walk again from its first field.
+  db.prepare(
+    'UPDATE profiles SET hp = ?, map_index = map_index + ?, map_steps = CASE WHEN ? > 0 THEN 0 ELSE map_steps END WHERE id = ?',
+  ).run(hp, mapsUnlocked, mapsUnlocked, userId);
   return { mapsUnlocked };
 }
 
@@ -200,6 +204,19 @@ export function completeTask(
     db.prepare(
       'UPDATE profiles SET presence = MIN(100, presence + ?), streak_days = ?, last_completed_date = ? WHERE id = ?',
     ).run(PRESENCE_PER_TASK, streakDays, today, userId);
+
+    // Every completed task is one step on the map, verified or not. Walking past the last field (the boss)
+    // opens the next map. If HP already opened one just now, the figure stays on its first field.
+    if (mapsUnlocked === 0) {
+      const steps = profileRow(userId).map_steps + 1;
+      const nextMap = steps >= FIELDS;
+      db.prepare('UPDATE profiles SET map_steps = ?, map_index = map_index + ? WHERE id = ?').run(
+        nextMap ? 0 : steps,
+        nextMap ? 1 : 0,
+        userId,
+      );
+      if (nextMap) mapsUnlocked = 1;
+    }
 
     // Recurring tasks continue with the next occurrence.
     if (task.recurrence !== 'none') {
@@ -352,7 +369,7 @@ export interface GameState {
 export function gameState(userId: string): GameState {
   const p = profileRow(userId);
   const phaseIndex = Math.min(p.map_index, MAPS.length) - 1;
-  const field = Math.floor(p.hp / 10) + 1;
+  const field = Math.min(p.map_steps, FIELDS - 1) + 1;
   const boss = currentBoss(userId);
   const upcoming = db
     .prepare(

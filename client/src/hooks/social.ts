@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { useAddFriend, useNotifications } from '@/hooks/queries';
 import { takePendingInvite } from '@/lib/invite';
@@ -15,6 +15,17 @@ export function useNotificationWatcher(): void {
   const navigate = useNavigate();
   const { data } = useNotifications();
   const seen = useRef<Set<string> | null>(null);
+  const messages = useRef<number | null>(null);
+  const { pathname } = useLocation();
+  const inChat = pathname.startsWith('/prijatelji/');
+  useEffect(() => {
+    if (!data) return;
+    const before = messages.current;
+    messages.current = data.unreadMessages;
+    if (before === null || data.unreadMessages <= before || inChat) return;
+    void qc.invalidateQueries({ queryKey: ['friends'] });
+    toast('Nova poruka od prijatelja', { action: { label: 'Otvori', onClick: () => navigate('/prijatelji') } });
+  }, [data, qc, navigate, inChat]);
   useEffect(() => {
     if (!data) return;
     const ids = data.items.map((n) => n.id);

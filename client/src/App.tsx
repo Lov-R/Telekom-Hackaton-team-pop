@@ -9,6 +9,7 @@ import { UNAUTHORIZED_EVENT } from '@/lib/api';
 const Auth = lazy(() => import('@/pages/Auth'));
 const Chat = lazy(() => import('@/pages/Chat'));
 const Friends = lazy(() => import('@/pages/Friends'));
+const FriendChat = lazy(() => import('@/pages/FriendChat'));
 const Notifications = lazy(() => import('@/pages/Notifications'));
 const DocumentDetail = lazy(() => import('@/pages/DocumentDetail'));
 const Documents = lazy(() => import('@/pages/Documents'));
@@ -78,6 +79,7 @@ export default function App() {
         <Route path="profil" element={<Profile />} />
         <Route path="vise" element={<More />} />
         <Route path="prijatelji" element={<Friends />} />
+        <Route path="prijatelji/:id" element={<FriendChat />} />
         <Route path="obavijesti" element={<Notifications />} />
         <Route path="postavke" element={<Settings />} />
         <Route path="*" element={<NotFound />} />

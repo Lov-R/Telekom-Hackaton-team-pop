@@ -43,7 +43,7 @@ function Stop({ field, game, marker }: { field: number; game: GameState; marker?
           boss
             ? 'h-9 w-11 border-warm bg-gradient-to-b from-[#ffd9b5] to-[#c98a52] text-[#3d230f] shadow-[0_0_22px_rgb(243_179_125/0.6)]'
             : done
-              ? 'h-6 w-7 border-[#b6ceec] bg-gradient-to-b from-[#8ab0df] to-[#3f6695] text-white shadow-[0_3px_0_#2e435d,0_0_14px_rgb(127_214_164/0.55)]'
+              ? 'h-6 w-7 border-[#b9f0cf] bg-gradient-to-b from-[#7fd6a4] to-[#2f8a5b] text-white shadow-[0_3px_0_#1f5c3d,0_0_14px_rgb(127_214_164/0.6)]'
               : current
                 ? 'h-7 w-9 border-2 border-[#c8daf0] bg-[#5984b9] text-transparent shadow-[0_0_0_5px_rgb(84_125_176/0.27),0_0_25px_rgb(95_148_213/0.6)]'
                 : 'h-6 w-7 border-[#a2abb7] bg-gradient-to-br from-[#444d58] to-[#272c32] text-[#d4d9e0] opacity-85 shadow-[0_3px_0_#1b2129]',

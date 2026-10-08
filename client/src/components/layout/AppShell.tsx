@@ -51,7 +51,7 @@ export function AppShell() {
   const endWelcome = useCallback(() => setWelcome(false), []);
   const chat = pathname === '/asistent';
   const map = pathname === '/';
-  const showAssistant = !chat && pathname !== '/profil';
+  const showAssistant = !chat && pathname !== '/profil' && !pathname.startsWith('/prijatelji/');
 
   return (
     <div className="min-h-dvh md:pl-64">

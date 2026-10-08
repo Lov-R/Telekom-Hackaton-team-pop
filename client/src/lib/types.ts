@@ -111,6 +111,22 @@ export interface Friend {
   hp: number;
   streak: number;
   presence: number;
+  /** Only in the friends list. */
+  unreadMessages?: number;
+  lastMessageAt?: string | null;
+}
+
+export interface FriendMessage {
+  id: string;
+  mine: boolean;
+  content: string;
+  createdAt: string;
+  read: boolean;
+}
+
+export interface Conversation {
+  friend: Friend;
+  messages: FriendMessage[];
 }
 
 export interface FriendsData {
@@ -131,6 +147,8 @@ export interface AppNotification {
 
 export interface NotificationsData {
   unread: number;
+  /** Unread chat messages from friends. */
+  unreadMessages: number;
   items: AppNotification[];
 }
 

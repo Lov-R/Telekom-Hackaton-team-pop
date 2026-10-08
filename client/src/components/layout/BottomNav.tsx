@@ -5,7 +5,8 @@ import { NAV_ITEMS, isNavActive } from './nav';
 
 export function BottomNav() {
   const { pathname } = useLocation();
-  const unread = useNotifications().data?.unread ?? 0;
+  const n = useNotifications().data;
+  const unread = (n?.unread ?? 0) + (n?.unreadMessages ?? 0);
   return (
     <nav
       aria-label="Glavna navigacija"

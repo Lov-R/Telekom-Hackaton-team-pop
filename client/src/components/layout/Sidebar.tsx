@@ -31,7 +31,7 @@ function SideLink({ item, active, badge = 0 }: { item: NavItem; active: boolean;
 export function Sidebar() {
   const { data: game } = useGame();
   const { pathname } = useLocation();
-  const unread = useNotifications().data?.unread ?? 0;
+  const n = useNotifications().data;
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-sidebar p-4 md:flex">
       <Link to="/" className="mb-1 px-2 pt-2">
@@ -48,7 +48,7 @@ export function Sidebar() {
             key={item.to}
             item={item}
             active={pathname.startsWith(item.to)}
-            badge={item.to === '/obavijesti' ? unread : 0}
+            badge={item.to === '/obavijesti' ? (n?.unread ?? 0) : item.to === '/prijatelji' ? (n?.unreadMessages ?? 0) : 0}
           />
         ))}
       </nav>

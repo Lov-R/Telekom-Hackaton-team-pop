@@ -45,9 +45,18 @@ export function friendOut(friendId: string) {
 
 export function listFriends(userId: string) {
   const rows = db
-    .prepare('SELECT friend_id FROM friendships WHERE user_id = ? ORDER BY created_at')
-    .all(userId) as { friend_id: string }[];
-  return rows.map((r) => friendOut(r.friend_id));
+    .prepare(
+      `SELECT f.friend_id,
+         (SELECT COUNT(*) FROM friend_messages m
+          WHERE m.sender_id = f.friend_id AND m.recipient_id = f.user_id AND m.read_at IS NULL) AS unread,
+         (SELECT MAX(created_at) FROM friend_messages m
+          WHERE (m.sender_id = f.friend_id AND m.recipient_id = f.user_id)
+             OR (m.sender_id = f.user_id AND m.recipient_id = f.friend_id)) AS last_at
+       FROM friendships f WHERE f.user_id = ?
+       ORDER BY last_at IS NULL, last_at DESC, f.created_at`,
+    )
+    .all(userId) as { friend_id: string; unread: number; last_at: string | null }[];
+  return rows.map((r) => ({ ...friendOut(r.friend_id), unreadMessages: r.unread, lastMessageAt: r.last_at }));
 }
 
 /** Friendship is mutual and immediate (invite link or code). Adding an existing friend is a no-op. */
@@ -195,6 +204,74 @@ export function notifyTaskCompleted(userId: string, taskId: string): void {
   }
 }
 
+/* ---------- messages ---------- */
+
+function assertFriend(userId: string, friendId: string): void {
+  if (!areFriends(userId, friendId)) throw notFound('Prijatelj');
+}
+
+/** The latest messages of one conversation, oldest first. Opening it marks the friend's messages as read. */
+export function conversation(userId: string, friendId: string) {
+  assertFriend(userId, friendId);
+  db.prepare('UPDATE friend_messages SET read_at = ? WHERE sender_id = ? AND recipient_id = ? AND read_at IS NULL').run(
+    nowIso(),
+    friendId,
+    userId,
+  );
+  const rows = db
+    .prepare(
+      `SELECT * FROM (
+         SELECT id, sender_id, content, created_at, read_at FROM friend_messages
+         WHERE (sender_id = ? AND recipient_id = ?) OR (sender_id = ? AND recipient_id = ?)
+         ORDER BY created_at DESC LIMIT 200
+       ) ORDER BY created_at`,
+    )
+    .all(userId, friendId, friendId, userId) as {
+    id: string;
+    sender_id: string;
+    content: string;
+    created_at: string;
+    read_at: string | null;
+  }[];
+  return {
+    friend: friendOut(friendId),
+    messages: rows.map((m) => ({
+      id: m.id,
+      mine: m.sender_id === userId,
+      content: m.content,
+      createdAt: m.created_at,
+      read: m.read_at !== null,
+    })),
+  };
+}
+
+export function sendMessage(userId: string, friendId: string, content: string) {
+  assertFriend(userId, friendId);
+  const id = newId();
+  const now = nowIso();
+  db.prepare('INSERT INTO friend_messages (id, sender_id, recipient_id, content, created_at) VALUES (?,?,?,?,?)').run(
+    id,
+    userId,
+    friendId,
+    content,
+    now,
+  );
+  return { id, mine: true, content, createdAt: now, read: false };
+}
+
+/** Unread messages from current friends only (a removed friend's messages stay hidden). */
+function unreadMessages(userId: string): number {
+  return (
+    db
+      .prepare(
+        `SELECT COUNT(*) AS n FROM friend_messages m
+         JOIN friendships f ON f.user_id = m.recipient_id AND f.friend_id = m.sender_id
+         WHERE m.recipient_id = ? AND m.read_at IS NULL`,
+      )
+      .get(userId) as { n: number }
+  ).n;
+}
+
 /* ---------- notifications ---------- */
 
 export function listNotifications(userId: string) {
@@ -218,6 +295,7 @@ export function listNotifications(userId: string) {
   ).n;
   return {
     unread,
+    unreadMessages: unreadMessages(userId),
     items: items.map((n) => ({
       id: n.id,
       kind: n.template_key,
