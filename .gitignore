@@ -1,0 +1,9 @@
+node_modules
+dist
+server/.env
+client/.env
+server/data/
+instructions.md
+*.log
+.DS_Store
+server/seed-documents/

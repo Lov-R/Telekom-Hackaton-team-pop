@@ -1,0 +1,21 @@
+{
+  "name": "relai",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "mobile": "npm run build -w client && concurrently -n server,client -c blue,magenta \"npm run start -w server\" \"npm run preview -w client\"",
+    "build": "npm run build -w client && npm run build -w server",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w client",
+    "smoke": "npm run smoke -w server",
+    "seed": "npm run seed -w server",
+    "import-docs": "npm run import-docs -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  }
+}
