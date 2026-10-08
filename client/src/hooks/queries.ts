@@ -10,6 +10,9 @@ import type {
   ChatResponse,
   CompleteResponse,
   Dashboard,
+  FriendsData,
+  Friend,
+  NotificationsData,
   DocumentDetail,
   DocumentItem,
   GameState,
@@ -37,7 +40,7 @@ export function invalidateAll(qc: QueryClient): Promise<void> {
   return qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== 'me' });
 }
 
-function invalidateTaskRelated(qc: QueryClient): void {
+export function invalidateTaskRelated(qc: QueryClient): void {
   for (const key of ['tasks', 'goals', 'profile', 'dashboard', 'calendar', 'game', 'document', 'recommendations']) {
     void qc.invalidateQueries({ queryKey: [key] });
   }
@@ -390,5 +393,55 @@ export function useClearChat() {
   return useMutation({
     mutationFn: () => api.del('/chat/messages'),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['chat'] }),
+  });
+}
+
+/* ---------- friends & notifications (F16) ---------- */
+
+export function useFriends() {
+  return useQuery({ queryKey: ['friends'], queryFn: () => api.get<FriendsData>('/friends') });
+}
+
+export function useAddFriend() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (code: string) => api.post<{ added: boolean; friend: Friend }>('/friends', { code }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['friends'] }),
+  });
+}
+
+export function useRemoveFriend() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.del(`/friends/${id}`),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['friends'] }),
+  });
+}
+
+export function useShareTask() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, friendIds }: { id: string; friendIds: string[] }) =>
+      api.post<Task>(`/tasks/${id}/share`, { friendIds }),
+    onSuccess: () => invalidateTaskRelated(qc),
+  });
+}
+
+/** In-app notifications, polled while the app is open. */
+const NOTIFICATIONS_POLL_MS = 30_000;
+
+export function useNotifications() {
+  return useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => api.get<NotificationsData>('/notifications'),
+    refetchInterval: NOTIFICATIONS_POLL_MS,
+  });
+}
+
+export function useMarkNotificationsRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.post<void>('/notifications/read'),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['notifications'] }),
   });
 }

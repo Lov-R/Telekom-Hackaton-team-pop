@@ -8,6 +8,7 @@ import { removeStoredFile } from '../services/documents.js';
 import { ensureLocalFile } from '../persist.js';
 import { completeTask, gameState, profileRow } from '../services/game.js';
 import { TASK_ORDER, TASK_SELECT, taskById, taskOut, type TaskRow } from '../services/serialize.js';
+import { notifyTaskCompleted } from '../services/social.js';
 import { assertGoal, insertTask, isValidTime, startAt } from '../services/tasks.js';
 import { isValidDate, todayZagreb } from '../util/dates.js';
 import { HttpError, notFound } from '../util/http.js';
@@ -142,6 +143,7 @@ tasksRouter.post('/tasks/:id/complete', upload.single('proof'), async (req, res)
 
   if (!req.file) {
     const result = completeTask(userId, task.id, null);
+    notifyTaskCompleted(userId, task.id);
     res.json({ accepted: true, reason: null, result, task: taskById(userId, task.id), game: gameState(userId) });
     return;
   }
@@ -190,6 +192,7 @@ tasksRouter.post('/tasks/:id/complete', upload.single('proof'), async (req, res)
     "UPDATE documents SET title = ?, status = 'ready', document_date = ?, updated_at = ? WHERE id = ?",
   ).run(`Dokaz: ${task.title}`.slice(0, 120), verdict.proof_date, nowIso(), proofDoc.id);
   const result = completeTask(userId, task.id, { documentId: proofDoc.id, reason: verdict.reason });
+  notifyTaskCompleted(userId, task.id);
 
   // A proof that is itself a new document (e.g. a new medical report) goes to Documents (Tok C, step 5),
   // unread until opened like any other upload.

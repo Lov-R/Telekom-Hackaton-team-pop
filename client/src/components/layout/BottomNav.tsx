@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router';
+import { useNotifications } from '@/hooks/queries';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS, isNavActive } from './nav';
 
 export function BottomNav() {
   const { pathname } = useLocation();
+  const unread = useNotifications().data?.unread ?? 0;
   return (
     <nav
       aria-label="Glavna navigacija"
@@ -19,11 +21,17 @@ export function BottomNav() {
                 to={item.to}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex w-full flex-col items-center justify-center gap-1 text-[11px] transition-colors',
+                  'relative flex w-full flex-col items-center justify-center gap-1 text-[11px] transition-colors',
                   active ? 'font-bold text-foreground [&>svg]:text-primary' : 'font-medium text-muted-foreground',
                 )}
               >
                 <Icon className="size-[22px]" strokeWidth={1.7} />
+                {item.to === '/vise' && unread > 0 && (
+                  <span
+                    className="absolute top-2 left-1/2 ml-2 size-2.5 rounded-full bg-primary ring-2 ring-background"
+                    aria-label={`${unread} nepročitanih obavijesti`}
+                  />
+                )}
                 {item.label}
               </Link>
             </li>

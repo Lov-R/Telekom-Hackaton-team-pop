@@ -91,6 +91,47 @@ export interface Task {
   goalId: string | null;
   createdAt: string;
   overdue: boolean;
+  /** Other members of a joint task (each has their own copy), or null when not shared. */
+  shared: ShareMember[] | null;
+}
+
+export interface ShareMember {
+  userId: string;
+  displayName: string;
+  status: 'open' | 'done' | 'missed';
+  completedAt: string | null;
+}
+
+export interface Friend {
+  id: string;
+  displayName: string;
+  avatar: { name: string; color: GhostColor; accessory: Accessory };
+  mapIndex: number;
+  mapName: string;
+  hp: number;
+  streak: number;
+  presence: number;
+}
+
+export interface FriendsData {
+  code: string;
+  friends: Friend[];
+}
+
+export type NotificationKind = 'friend_added' | 'task_shared' | 'friend_done' | 'group_done';
+
+export interface AppNotification {
+  id: string;
+  kind: NotificationKind;
+  text: string;
+  taskId: string | null;
+  createdAt: string;
+  read: boolean;
+}
+
+export interface NotificationsData {
+  unread: number;
+  items: AppNotification[];
 }
 
 export interface CalendarItem extends Task {

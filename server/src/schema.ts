@@ -144,6 +144,16 @@ CREATE TABLE IF NOT EXISTS friendships (
   PRIMARY KEY (user_id, friend_id)
 );
 
+-- Joint tasks (F16 extra): every member has their own copy in tasks; copies of one shared task share group_id.
+-- Deleting a copy leaves the group.
+CREATE TABLE IF NOT EXISTS task_shares (
+  task_id TEXT PRIMARY KEY REFERENCES tasks(id) ON DELETE CASCADE,
+  group_id TEXT NOT NULL,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  invited_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS recommendations (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -169,4 +179,7 @@ CREATE INDEX IF NOT EXISTS idx_tasks_document ON tasks(document_id);
 CREATE INDEX IF NOT EXISTS idx_hp_ledger_user ON hp_ledger(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_chat_user ON chat_messages(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_goals_user ON goals(user_id);
+CREATE INDEX IF NOT EXISTS idx_task_shares_group ON task_shares(group_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_friendships_friend ON friendships(friend_id);
 `;

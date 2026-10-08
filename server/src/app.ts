@@ -13,6 +13,7 @@ import { documentsRouter } from './routes/documents.js';
 import { goalsRouter } from './routes/goals.js';
 import { profileRouter } from './routes/profile.js';
 import { recommendationsRouter } from './routes/recommendations.js';
+import { socialRouter } from './routes/social.js';
 import { tasksRouter } from './routes/tasks.js';
 import { requireAuth } from './services/auth.js';
 import { HttpError } from './util/http.js';
@@ -46,6 +47,7 @@ for (const r of [
   chatRouter,
   profileRouter,
   dashboardRouter,
+  socialRouter,
 ]) {
   api.use(r);
 }

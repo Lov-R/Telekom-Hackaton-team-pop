@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { TaskDialogs } from '@/components/tasks/TaskDialogs';
 import { useProcessingWatcher } from '@/hooks/queries';
+import { useNotificationWatcher, usePendingInvite } from '@/hooks/social';
 import { BottomNav } from './BottomNav';
 import { Sidebar } from './Sidebar';
 
@@ -43,6 +44,8 @@ function AssistantButton({ high }: { high: boolean }) {
 
 export function AppShell() {
   useProcessingWatcher();
+  useNotificationWatcher();
+  usePendingInvite();
   const { pathname } = useLocation();
   const [welcome, setWelcome] = useState(takeWelcomeFlag);
   const endWelcome = useCallback(() => setWelcome(false), []);

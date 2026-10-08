@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router';
 import { Figure, Logo } from '@/components/brand/Brand';
-import { useGame } from '@/hooks/queries';
+import { useGame, useNotifications } from '@/hooks/queries';
 import { cn } from '@/lib/utils';
 import { MORE_ITEMS, NAV_ITEMS, isNavActive, type NavItem } from './nav';
 
-function SideLink({ item, active }: { item: NavItem; active: boolean }) {
+function SideLink({ item, active, badge = 0 }: { item: NavItem; active: boolean; badge?: number }) {
   const Icon = item.icon;
   return (
     <Link
@@ -19,6 +19,11 @@ function SideLink({ item, active }: { item: NavItem; active: boolean }) {
     >
       <Icon className="size-5" strokeWidth={1.7} />
       <span className="truncate">{item.label}</span>
+      {badge > 0 && (
+        <span className="ml-auto rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground tabular-nums">
+          {badge}
+        </span>
+      )}
     </Link>
   );
 }
@@ -26,6 +31,7 @@ function SideLink({ item, active }: { item: NavItem; active: boolean }) {
 export function Sidebar() {
   const { data: game } = useGame();
   const { pathname } = useLocation();
+  const unread = useNotifications().data?.unread ?? 0;
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-sidebar p-4 md:flex">
       <Link to="/" className="mb-1 px-2 pt-2">
@@ -38,7 +44,12 @@ export function Sidebar() {
         ))}
         <div className="my-3 border-t" />
         {MORE_ITEMS.map((item) => (
-          <SideLink key={item.to} item={item} active={pathname.startsWith(item.to)} />
+          <SideLink
+            key={item.to}
+            item={item}
+            active={pathname.startsWith(item.to)}
+            badge={item.to === '/obavijesti' ? unread : 0}
+          />
         ))}
       </nav>
       {game && (

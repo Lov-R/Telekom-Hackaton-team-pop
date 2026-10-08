@@ -9,9 +9,10 @@ interface State {
   editing: Task | null;
   creating: { goalId?: string | null } | null;
   completing: Task | null;
+  sharing: Task | null;
 }
 
-let state: State = { editing: null, creating: null, completing: null };
+let state: State = { editing: null, creating: null, completing: null, sharing: null };
 const listeners = new Set<() => void>();
 
 function set(next: Partial<State>): void {
@@ -24,6 +25,8 @@ export const openNewTask = (opts: { goalId?: string | null } = {}): void => set(
 export const openCompleteTask = (task: Task): void => set({ completing: task });
 export const closeTaskEditor = (): void => set({ editing: null, creating: null });
 export const closeCompleteTask = (): void => set({ completing: null });
+export const openShareTask = (task: Task): void => set({ sharing: task });
+export const closeShareTask = (): void => set({ sharing: null });
 
 export function useTaskDialogs(): State {
   return useSyncExternalStore(

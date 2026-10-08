@@ -2,6 +2,7 @@ import { db } from '../db.js';
 import { todayZagreb } from '../util/dates.js';
 import { notFound } from '../util/http.js';
 import { taskDate } from './game.js';
+import { shareMembers, type ShareMember } from './social.js';
 
 export interface TaskOut {
   id: string;
@@ -26,6 +27,8 @@ export interface TaskOut {
   goalId: string | null;
   createdAt: string;
   overdue: boolean;
+  /** Other members of a joint task (their own copies), or null when not shared. */
+  shared: ShareMember[] | null;
 }
 
 export interface TaskRow {
@@ -81,6 +84,7 @@ export function taskOut(r: TaskRow): TaskOut {
     goalId: r.goal_id,
     createdAt: r.created_at,
     overdue: r.status !== 'done' && r.kind === 'deadline' && !!r.due_date && r.due_date < todayZagreb(),
+    shared: shareMembers(r.id),
   };
 }
 

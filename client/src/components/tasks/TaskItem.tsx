@@ -1,4 +1,4 @@
-import { CalendarClock, Check, FileText, MoreVertical, Pencil, Repeat, ShieldCheck, Trash2 } from 'lucide-react';
+import { CalendarClock, Check, FileText, MoreVertical, Pencil, Repeat, Share2, ShieldCheck, Trash2, Users } from 'lucide-react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useDeleteTask } from '@/hooks/queries';
 import { dueLabel, formatDate } from '@/lib/dates';
 import { TIER_LABELS } from '@/lib/labels';
-import { openCompleteTask, openTaskEditor } from '@/lib/taskDialogs';
+import { openCompleteTask, openShareTask, openTaskEditor } from '@/lib/taskDialogs';
 import type { Task } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -71,6 +71,17 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
         {task.sourceText && !compact && !done && (
           <p className="text-xs text-muted-foreground italic">„{task.sourceText}”</p>
         )}
+        {task.shared && (
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+            <Users className="size-3.5 shrink-0" />
+            {task.shared.map((m) => (
+              <span key={m.userId} className={cn(m.status === 'done' && 'font-bold text-success')}>
+                {m.displayName}
+                {m.status === 'done' && <Check className="ml-0.5 inline size-3" />}
+              </span>
+            ))}
+          </p>
+        )}
         {done && task.proofReason && (
           <p className="flex items-start gap-1 text-xs text-success">
             <ShieldCheck className="mt-px size-3.5 shrink-0" /> {task.proofReason}
@@ -92,6 +103,11 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
           {!done && (
             <DropdownMenuItem onSelect={() => openTaskEditor(task)}>
               <Pencil /> Uredi
+            </DropdownMenuItem>
+          )}
+          {!done && (
+            <DropdownMenuItem onSelect={() => openShareTask(task)}>
+              <Share2 /> Podijeli s prijateljima
             </DropdownMenuItem>
           )}
           <DropdownMenuItem

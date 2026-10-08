@@ -4,12 +4,14 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
+import { captureInvite } from '@/lib/invite';
 import { applyTheme, usePrefs } from '@/lib/prefs';
 import { queryClient } from '@/lib/queryClient';
 import App from './App';
 import './index.css';
 
 applyTheme();
+captureInvite();
 
 function ThemedToaster() {
   const { theme } = usePrefs();
