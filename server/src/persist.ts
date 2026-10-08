@@ -15,17 +15,12 @@ import { SERVERLESS, UPLOAD_DIR } from './env.js';
  */
 
 const DB_KEY = 'relai.db';
-let stores: { db: Store; files: Store } | null = null;
-
 async function getStores(): Promise<{ db: Store; files: Store }> {
-  if (!stores) {
-    const { getStore } = await import('@netlify/blobs');
-    stores = {
-      db: getStore({ name: 'relai-db', consistency: 'strong' }),
-      files: getStore({ name: 'relai-files', consistency: 'strong' }),
-    };
-  }
-  return stores;
+  const { getStore } = await import('@netlify/blobs');
+  return {
+    db: getStore({ name: 'relai-db', consistency: 'strong' }),
+    files: getStore({ name: 'relai-files', consistency: 'strong' }),
+  };
 }
 
 let etag: string | undefined;
