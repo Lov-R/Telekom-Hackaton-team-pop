@@ -25,7 +25,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title || 'relAI', {
       body: data.body || '',
-      icon: '/pwa-192x192.png',
+      icon: '/android-chrome-192x192.png',
       badge: '/pwa-64x64.png',
       data: { url: data.url || '/' },
     }),
